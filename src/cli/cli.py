@@ -1,0 +1,246 @@
+#!/bin/python3
+
+import click
+from tasklist import TaskList
+from task import Task
+from datetime import datetime
+import os
+import pathlib
+import json
+from typing import List, Optional, Callable, Iterator, Any
+
+DEFAULT_PATH:pathlib.Path =         pathlib.Path().cwd() / 'todo.txt'
+DEFAULT_PATH_ARCHIVE:pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
+@click.group()
+@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.option('-V', '--version', is_flag=True, help='Show version and exit.')
+@click.option('-v', '--vebrose', is_flag=True, help='Be more vebrose.')
+@click.option('-f','--file', type=click.Path(), envvar='TODOTXT_PATH', default=DEFAULT_PATH, help='Path to the todo.txt file')
+@click.option('--archive-file', type=click.Path(), envvar='TODOTXT_PATH_ARCHIVE', default=DEFAULT_PATH_ARCHIVE, help='Path to the archive.txt file')
+@click.option('-c', '--no-color', is_flag=True, help='Disable colors in output')
+@click.option('--todotxt', is_flag=True)
+@click.option('-j', '--json', is_flag=True)
+@click.pass_context
+def cli(ctx:click.Context, help:bool, file, archive_file, no_color:bool, todotxt:bool, json:bool,version:bool, vebrose:bool):
+    """Todo.txt CLI manager"""
+    if help:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    if version:
+        click.echo("Todo.txt CLI version 0.1.0")
+        ctx.exit()
+    ctx.ensure_object(dict)
+    todo_file = file
+    ctx.obj['tasklist'] = TaskList()
+    if os.path.exists(todo_file):
+        with open(todo_file, 'r') as file:
+            todo_content = file.read()
+            ctx.obj['tasklist'].from_string(todo_content)
+    ctx.obj['todo_file'] = todo_file
+    ctx.obj['archive_file'] = archive_file
+    ctx.obj['no_color'] = no_color
+    ctx.obj['todotxt'] = todotxt
+    ctx.obj['json'] = json
+    ctx.obj['vebrose'] = vebrose
+
+@cli.command(name='add')
+@click.argument('task_string')
+@click.pass_context
+def add(ctx:click.Context, task_string:str):
+    """Add a new task"""
+    if ctx.obj["help"]:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    output = []
+    for task in task_string.splitlines(): 
+        task = Task(creation_date=datetime.now())
+        task.from_string(task_string)
+        ctx.obj['tasklist'].add_task(task)
+        if ctx.obj['vebrose']:
+            if ctx.obj['todotxt']:
+                if ctx.obj['no_color']:
+                    output.append(f"Task added: {task.to_string()}")
+                else:
+                    output.append(f"Task added: {task.to_string()}")
+            else:
+                if ctx.obj['json']:
+                    output.append(task.to_dict())
+                else:
+                    output.append(task)
+    if ctx.obj['vebrose'] and ctx.obj['json']:
+        output = json.dumps(output)
+    
+    save_tasklist(ctx=ctx, tasklist=None)
+    
+    click.echo(output)
+
+cli.add_command(add, name='a')
+cli.add_command(add, name='addm')
+
+@cli.command()
+@click.argument('indexes',type=int,nargs=-1)
+@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.pass_context
+def do(ctx:click.Context, indexes:list[int], help):
+    """Mark a task as completed"""
+    if help:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    if not indexes:
+        click.echo("No task index provided.")
+        ctx.exit()
+    tasklist:TaskList = ctx.obj['tasklist']
+    for index in indexes:
+        task:Optional[Task] = tasklist.get(index=index,default=None)
+        if task:
+            task.mark_as_completed()
+        if ctx.obj['vebrose']:
+            if not task:
+                click.echo("Task not found.")
+            elif task.tags.get('rec',None):
+                click.echo(f"Task's due date has been changed. New task: {task}")
+            else:
+                click.echo(f"Task marked as completed: {task}")
+        
+    #TODO
+
+@cli.command() #TODO aliases=['del', 'delete']
+@click.argument('task_description')
+@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.pass_context
+def rm(ctx:click.Context, index:list[int], help):
+    """Remove a task"""
+    if help:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    task = None #TODO поиск таска по index
+    if task:
+        ctx.obj['tasklist'].remove_task(task)
+        click.echo(f"Task removed: {task}")
+    else:
+        click.echo("Task not found.")
+
+@cli.command()#TODO aliases=['list']
+@click.option('-s','--sort', is_flag=True, help="Sort tasks")
+@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.pass_context
+def ls(ctx:click.Context,sort:bool, help:bool):
+    """List tasks"""
+    if help:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    taskList:TaskList = ctx.obj['tasklist']
+    if sort:
+        taskList.sort()
+        
+    #TODO фильтрация по аргументам
+    if ctx.obj['json']:
+        out = []
+        for task in taskList:
+            out.append(task.to_dict())
+        click.echo(json.dumps(out,ensure_ascii=False))
+    else:
+        click.echo(taskList.to_string(color=not ctx.obj['no_color'],todotxt_format=ctx.obj['todotxt']))
+    
+    
+
+    
+cli.add_command(ls, "list")
+
+
+@cli.command()
+@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.pass_context
+def archive(ctx, help):
+    """Archive completed tasks"""
+    if help:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    archived:TaskList = ctx.obj['tasklist'].archive()
+    
+    if ctx.obj['vebrose']:
+        click.echo(f"Archived {len(archived)} completed tasks")
+
+@cli.command()
+@click.argument('task_description')
+@click.option('-p', '--priority', type=click.Choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), help='Update priority (A-Z)')
+@click.option('-d', '--due', type=click.DateTime(formats=["%Y-%m-%d"]), help='Update due date (YYYY-MM-DD)')
+@click.option('-t', '--tag', multiple=True, help='Update tags (key:value)')
+@click.option('-j', '--project', multiple=True, help='Update projects')
+@click.option('-c', '--context', multiple=True, help='Update contexts')
+@click.option('--description', help='Update description')
+@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.pass_context
+def update(ctx, task_description, priority, due, tag, project, context, description, help):
+    """Update a task"""
+    if help:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    task = next((t for t in ctx.obj['tasklist'].to_list() if t.description == task_description), None)
+    if task:
+        if priority:
+            task.set_priority(ord(priority) - 65)
+        if due:
+            task.set_completion_date(due)
+        if tag:
+            task.tags.clear()
+            for t in tag:
+                key, value = t.split(':', 1)
+                task.add_tag(key, value)
+        if project:
+            task.projects = list(project)
+        if context:
+            task.contexts = list(context)
+        if description:
+            task.set_description(description)
+        click.echo(f"Task updated: {task}")
+    else:
+        click.echo("Task not found.")
+
+@cli.command()
+@click.argument('other_file', type=click.Path(exists=True))
+@click.pass_context
+def merge(ctx, other_file):
+    """Merge tasks from another file"""
+    with open(other_file, 'r') as file:
+        other_content = file.read()
+    other_tasklist = TaskList.from_string(other_content)
+    
+    ctx.obj['tasklist'].merge(other_tasklist)
+    click.echo(f"Merged tasks from {other_file}")
+
+@cli.command()
+@click.option('-r','--reverse', is_flag=True, help='Reverse the sort order')
+@click.pass_context
+def sort(ctx, reverse):
+    ctx.obj['tasklist'].sort(reverse=reverse)
+
+
+@cli.command()
+@click.pass_context
+def get_priority_task(ctx):
+    """Get the task with the highest priority"""
+    sorted_tasklist = ctx.obj['tasklist']
+    sorted_tasklist.sort(reverse=False)
+    click.echo(f"Task with the highest priority: {sorted_tasklist[0].to_string()}")
+
+@cli.command()
+@click.pass_context
+def deduplicate(ctx):
+    pass
+
+def save_tasklist(ctx:click.Context, tasklist:Optional[TaskList]=None):
+    path = pathlib.Path(ctx.obj['archive_file'])
+    mode = 'a'
+    if tasklist is None:
+        path:pathlib.Path = pathlib.Path(ctx.obj['todo_file'])
+        mode:str = 'w'
+        tasklist:TaskList = ctx.obj['tasklist']
+    
+    with open(path, mode) as file:
+        file.write(tasklist.to_string())
+    
+    
+    
+if __name__ == '__main__':
+    cli()
