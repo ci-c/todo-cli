@@ -310,7 +310,20 @@ class TaskList:
         for task in self.tasks:
             if task.tags.get("id", default=None) is not None:
                 duplicates.append(self.find_all(lambda t: t.tags.get("id", default=None) == task.tags["id"]))
-            
+    
+    def deduplicate(self)->None:
+        """
+        Removes duplicate tasks from the task list.
+        """
+        duplicates:List[List[Task]] = []
+        for task in self.tasks:
+            if task.tags.get("id", default=None) is not None:
+                duplicates.append(self.find_all(lambda t: t.to_dict() == task.to_dict()))
+        for duplicate_group in duplicates:
+            if len(duplicate_group) > 1:
+                for duplicate in duplicate_group[1:]:
+                    self.remove_task(duplicate)
+    
     def replan_overdue_tasks(self):
         pass
     def plan_task(self, task:Task)->Optional[Task]: # if error return None

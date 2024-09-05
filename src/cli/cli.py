@@ -22,7 +22,23 @@ DEFAULT_PATH_ARCHIVE:pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
 @click.option('-j', '--json', is_flag=True)
 @click.pass_context
 def cli(ctx:click.Context, help:bool, file, archive_file, no_color:bool, todotxt:bool, json:bool,version:bool, vebrose:bool):
-    """Todo.txt CLI manager"""
+
+    """
+    Todo.txt CLI manager
+
+    This function initializes the CLI application, sets up the context, and handles global options.
+
+    Args:
+        ctx (click.Context): The Click context object.
+        help (bool): Flag to show help message.
+        file: Path to the todo.txt file.
+        archive_file: Path to the archive.txt file.
+        no_color (bool): Flag to disable colors in output.
+        todotxt (bool): Flag to use Todo.txt format.
+        json (bool): Flag to use JSON format.
+        version (bool): Flag to show version information.
+        vebrose (bool): Flag to enable verbose output.
+    """
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
@@ -47,7 +63,16 @@ def cli(ctx:click.Context, help:bool, file, archive_file, no_color:bool, todotxt
 @click.argument('task_string')
 @click.pass_context
 def add(ctx:click.Context, task_string:str):
-    """Add a new task"""
+
+    """
+    Add a new task
+
+    This function adds a new task to the task list.
+
+    Args:
+        ctx (click.Context): The Click context object.
+        task_string (str): The task description to be added.
+    """
     if ctx.obj["help"]:
         click.echo(ctx.get_help())
         ctx.exit()
@@ -82,7 +107,17 @@ cli.add_command(add, name='addm')
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
 def do(ctx:click.Context, indexes:list[int], help):
-    """Mark a task as completed"""
+
+    """
+    Mark a task as completed
+
+    This function marks one or more tasks as completed based on their indexes.
+
+    Args:
+        ctx (click.Context): The Click context object.
+        indexes (list[int]): List of task indexes to mark as completed.
+        help (bool): Flag to show help message.
+    """
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
@@ -109,7 +144,17 @@ def do(ctx:click.Context, indexes:list[int], help):
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
 def rm(ctx:click.Context, index:list[int], help):
-    """Remove a task"""
+
+    """
+    Remove a task
+
+    This function removes a task from the task list based on its index.
+
+    Args:
+        ctx (click.Context): The Click context object.
+        index (list[int]): List of task indexes to remove.
+        help (bool): Flag to show help message.
+    """
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
@@ -125,7 +170,17 @@ def rm(ctx:click.Context, index:list[int], help):
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
 def ls(ctx:click.Context,sort:bool, help:bool):
-    """List tasks"""
+
+    """
+    List tasks
+
+    This function lists all tasks in the task list, optionally sorting them.
+
+    Args:
+        ctx (click.Context): The Click context object.
+        sort (bool): Flag to sort tasks.
+        help (bool): Flag to show help message.
+    """
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
@@ -152,7 +207,15 @@ cli.add_command(ls, "list")
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
 def archive(ctx, help):
-    """Archive completed tasks"""
+    """
+    Archive completed tasks
+
+    This function archives all completed tasks in the task list.
+
+    Args:
+        ctx (click.Context): The Click context object.
+        help (bool): Flag to show help message.
+    """
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
@@ -162,7 +225,7 @@ def archive(ctx, help):
         click.echo(f"Archived {len(archived)} completed tasks")
 
 @cli.command()
-@click.argument('task_description')
+@click.argument('indexes')
 @click.option('-p', '--priority', type=click.Choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), help='Update priority (A-Z)')
 @click.option('-d', '--due', type=click.DateTime(formats=["%Y-%m-%d"]), help='Update due date (YYYY-MM-DD)')
 @click.option('-t', '--tag', multiple=True, help='Update tags (key:value)')
@@ -200,8 +263,12 @@ def update(ctx, task_description, priority, due, tag, project, context, descript
 @cli.command()
 @click.argument('other_file', type=click.Path(exists=True))
 @click.pass_context
-def merge(ctx, other_file):
-    """Merge tasks from another file"""
+def merge(ctx:click.Context, other_file:pathlib.Path):
+    """
+    Merge tasks from another file
+
+    This function merges tasks from another file into the current task list.
+    """
     with open(other_file, 'r') as file:
         other_content = file.read()
     other_tasklist = TaskList.from_string(other_content)
@@ -212,24 +279,56 @@ def merge(ctx, other_file):
 @cli.command()
 @click.option('-r','--reverse', is_flag=True, help='Reverse the sort order')
 @click.pass_context
-def sort(ctx, reverse):
+def sort(ctx:click.Context, reverse:bool):
+    """
+    Sort tasks
+
+    This function sorts the tasks in the task list.
+    """
     ctx.obj['tasklist'].sort(reverse=reverse)
 
 
 @cli.command()
 @click.pass_context
-def get_priority_task(ctx):
-    """Get the task with the highest priority"""
+def get_priority_task(ctx:click.Context):
+    """
+    Get the task with the highest priority
+
+    This function retrieves and displays the task with the highest priority.
+    """
     sorted_tasklist = ctx.obj['tasklist']
     sorted_tasklist.sort(reverse=False)
     click.echo(f"Task with the highest priority: {sorted_tasklist[0].to_string()}")
 
 @cli.command()
 @click.pass_context
-def deduplicate(ctx):
-    pass
+def deduplicate(ctx:click.Context):
+    """
+    Deduplicate tasks
 
-def save_tasklist(ctx:click.Context, tasklist:Optional[TaskList]=None):
+    This function removes duplicate tasks from the task list.
+    """
+    tasklist:TaskList = ctx.obj['tasklist']
+    a:int = len(tasklist)
+    tasklist.deduplicate()
+    a -= len(tasklist)
+    if ctx.obj['vebrose']:
+        click.echo(f"Deduplicated {a} tasks")
+    save_tasklist(ctx)
+
+def save_tasklist(ctx:click.Context, tasklist:Optional[TaskList]=None) -> None:
+    """
+    Save the task list to a file
+
+    This function saves the current task list to a file.
+    If the task list is not provided, it uses the task list from the context.
+    The task list is saved to the file specified in the context.
+    If task list is provided use 'archive todo file', else 'todo file'
+
+    Args:
+        ctx (click.Context): The Click context object.
+        tasklist (Optional[TaskList]): Only for archive.
+    """
     path = pathlib.Path(ctx.obj['archive_file'])
     mode = 'a'
     if tasklist is None:

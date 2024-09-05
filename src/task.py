@@ -62,7 +62,7 @@ class Task:
         self.description
     ))
     
-    def get_real_priority(self) -> Tuple[bool, datetime, int, datetime, int, str]:
+    def _get_real_priority(self) -> Tuple[bool, datetime, int, datetime, int, str]:
         """
         Returns the priority tuple for sorting tasks.
 
@@ -106,7 +106,7 @@ class Task:
         """
         if not isinstance(other, Task):
             return NotImplemented
-        return self.get_real_priority() == other.get_real_priority()
+        return self._get_real_priority() == other._get_real_priority()
 
     def __lt__(self, other: 'Task') -> bool:
         """
@@ -120,7 +120,7 @@ class Task:
         """
         if not isinstance(other, Task):
             return NotImplemented
-        return self.get_real_priority() < other.get_real_priority()
+        return self._get_real_priority() < other._get_real_priority()
 
     def __str__(self) -> str:
         """
