@@ -6,6 +6,8 @@ from functools import total_ordering
 import click
 from dateutil import parser as dtparser
 from dateutil.relativedelta import relativedelta
+from contextlib import suppress
+
 
 @total_ordering
 @dataclass
@@ -143,37 +145,30 @@ class Task:
     def from_string(self, task_string: str) -> 'Task':
         def extract_priority(line: str) -> tuple:
             priority = None
-            # Проверяем приоритет в формате (A)
             if line.startswith('(') and ')' in line:
                 end_paren_index = line.index(')')
                 priority_char = line[1:end_paren_index]
                 if priority_char.isalpha() and len(priority_char) == 1:
                     priority = ord(priority_char.upper()) - 65
                     line = line[end_paren_index + 1:].strip()
-            # Проверяем приоритет в формате pri:A
             elif 'pri:' in line:
                 parts = line.split('pri:')
                 if len(parts) > 1 and parts[1]:
                     priority_char = parts[1][0]
-                    if priority_char.isalpha():
-                        priority = ord(priority_char.upper()) - 65
-                        line = 'pri:' + parts[1][1:].strip()
+                    priority = ord(priority_char.upper()) - 65 if priority_char.isalpha() else None
+                    line = f'pri:{parts[1][1:].strip()}'
             return priority, line
 
         def extract_creation_date(line: str) -> tuple:
+            from contextlib import suppress
+
             words = line.split()
             creation_date = None
             if words:
                 first_word = words[0]
-                # Проверяем, есть ли дата в формате YYYY-MM-DD или YYYY-MM-DDTHH:MM
-                try:
-                    if 'T' in first_word:
-                        creation_date = dtparser.isoparse(first_word)
-                    else:
-                        creation_date = dtparser.parse(first_word).date()
+                with suppress(ValueError, OverflowError):
+                    creation_date = dtparser.isoparse(first_word) if 'T' in first_word else dtparser.parse(first_word).date()
                     words.pop(0)
-                except (ValueError, OverflowError):
-                    pass
             line = ' '.join(words)
             return creation_date, line
 
@@ -181,9 +176,8 @@ class Task:
         self.__clear()
 
         # Extract completion status
-        if task_string.startswith('x '):
-            self.completed = True
-            task_string = task_string[2:].strip()
+        self.completed = task_string.startswith('x ')
+        task_string = task_string[2:].strip() if self.completed else task_string
 
         # Extract priority
         self.priority, task_string = extract_priority(task_string)
@@ -201,20 +195,15 @@ class Task:
             elif ':' in word:
                 key, value = word.split(':', 1)
                 if key == 'due':
-                    try:
-                        if 'T' in value:
-                            self.completion_date = dtparser.isoparse(value)
-                        else:
-                            self.completion_date = dtparser.parse(value).date()
-                        words.pop(0)
-                    except (ValueError, OverflowError):
-                        pass
+                    with suppress(ValueError, OverflowError):
+                        self.completion_date = dtparser.isoparse(value) if 'T' in value else dtparser.parse(value).date()
                 else:
                     self.tags[key] = value
             else:
-                self.description += word + ' '
+                self.description += f'{word} '
 
         self.description = self.description.strip()
+
         return self
     
     def to_string(self, color=False, todotxt_format:bool=True) -> str: #TOD custom postprocess function
@@ -368,12 +357,15 @@ class Task:
             return self.completion_date < date.today()
         else:
             return self.completion_date < datetime.now()
-    def to_dict(self)->dict:
-        out:dict = {}
-        out['priority'] = self.priority
-        out['description'] = self.description
-        out['complited'] = self.completed
-        out['completion_date'] = self.completion_date.isoformat() if self.completion_date else None
+    def to_dict(self) -> dict:
+        out: dict = {
+            'priority': self.priority,
+            'description': self.description,
+            'complited': self.completed,
+            'completion_date': (
+                self.completion_date.isoformat() if self.completion_date else None
+            ),
+        }
         out['contexts'] = self.contexts
         out['tags'] = self.tags
         out['projects'] = self.projects
