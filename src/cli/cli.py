@@ -158,8 +158,7 @@ def rm(ctx:click.Context, index:list[int], help):
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
-    task = None #TODO поиск таска по index
-    if task:
+    if task := None:
         ctx.obj['tasklist'].remove_task(task)
         click.echo(f"Task removed: {task}")
     else:
@@ -187,12 +186,10 @@ def ls(ctx:click.Context,sort:bool, help:bool):
     taskList:TaskList = ctx.obj['tasklist']
     if sort:
         taskList.sort()
-        
+
     #TODO фильтрация по аргументам
     if ctx.obj['json']:
-        out = []
-        for task in taskList:
-            out.append(task.to_dict())
+        out = [task.to_dict() for task in taskList]
         click.echo(json.dumps(out,ensure_ascii=False))
     else:
         click.echo(taskList.to_string(color=not ctx.obj['no_color'],todotxt_format=ctx.obj['todotxt']))
@@ -239,8 +236,14 @@ def update(ctx, task_description, priority, due, tag, project, context, descript
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
-    task = next((t for t in ctx.obj['tasklist'].to_list() if t.description == task_description), None)
-    if task:
+    if task := next(
+        (
+            t
+            for t in ctx.obj['tasklist'].to_list()
+            if t.description == task_description
+        ),
+        None,
+    ):
         if priority:
             task.set_priority(ord(priority) - 65)
         if due:
