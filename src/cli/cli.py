@@ -7,26 +7,35 @@ from datetime import datetime
 import os
 import pathlib
 import json
-from typing import List, Optional, Callable, Iterator, Any
+from typing import Optional
 
-DEFAULT_PATH:pathlib.Path =         pathlib.Path().cwd() / 'todo.txt'
-DEFAULT_PATH_ARCHIVE:pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
+DEFAULT_PATH: pathlib.Path = pathlib.Path().cwd() / 'todo.txt'
+DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
+
+
 @click.group()
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.option('-V', '--version', is_flag=True, help='Show version and exit.')
 @click.option('-v', '--vebrose', is_flag=True, help='Be more vebrose.')
-@click.option('-f','--file', type=click.Path(), envvar='TODOTXT_PATH', default=DEFAULT_PATH, help='Path to the todo.txt file')
-@click.option('--archive-file', type=click.Path(), envvar='TODOTXT_PATH_ARCHIVE', default=DEFAULT_PATH_ARCHIVE, help='Path to the archive.txt file')
-@click.option('-c', '--no-color', is_flag=True, help='Disable colors in output')
+@click.option('-f', '--file', type=click.Path(), envvar='TODOTXT_PATH',
+              default=DEFAULT_PATH, help='Path to the todo.txt file')
+@click.option('--archive-file', type=click.Path(), envvar='ARCHIVE_PATH',
+              default=DEFAULT_PATH_ARCHIVE,
+              help='Path to the archive.txt file')
+@click.option('-c', '--no-color', is_flag=True,
+              help='Disable colors in output')
 @click.option('--todotxt', is_flag=True)
 @click.option('-j', '--json', is_flag=True)
 @click.pass_context
-def cli(ctx:click.Context, help:bool, file, archive_file, no_color:bool, todotxt:bool, json:bool,version:bool, vebrose:bool):
+def cli(ctx: click.Context, help: bool, file: pathlib.Path,
+        archive_file, no_color: bool, todotxt: bool, json: bool,
+        version: bool, vebrose: bool) -> None:
 
     """
     Todo.txt CLI manager
 
-    This function initializes the CLI application, sets up the context, and handles global options.
+    This function initializes the CLI application, sets up the context, and
+    handles global options.
 
     Args:
         ctx (click.Context): The Click context object.
@@ -59,10 +68,11 @@ def cli(ctx:click.Context, help:bool, file, archive_file, no_color:bool, todotxt
     ctx.obj['json'] = json
     ctx.obj['vebrose'] = vebrose
 
+
 @cli.command(name='add')
 @click.argument('task_string')
 @click.pass_context
-def add(ctx:click.Context, task_string:str):
+def add(ctx: click.Context, task_string: str):
 
     """
     Add a new task
@@ -77,37 +87,32 @@ def add(ctx:click.Context, task_string:str):
         click.echo(ctx.get_help())
         ctx.exit()
     output = []
-    for task in task_string.splitlines(): 
+    for task in task_string.splitlines():
         task = Task(creation_date=datetime.now())
         task.from_string(task_string)
         ctx.obj['tasklist'].add_task(task)
         if ctx.obj['vebrose']:
             if ctx.obj['todotxt']:
-                if ctx.obj['no_color']:
-                    output.append(f"Task added: {task.to_string()}")
-                else:
-                    output.append(f"Task added: {task.to_string()}")
+                output.append(f"Task added: {task.to_string()}")
+            elif ctx.obj['json']:
+                output.append(task.to_dict())
             else:
-                if ctx.obj['json']:
-                    output.append(task.to_dict())
-                else:
-                    output.append(task)
+                output.append(task)
     if ctx.obj['vebrose'] and ctx.obj['json']:
         output = json.dumps(output)
-    
     save_tasklist(ctx=ctx, tasklist=None)
-    
     click.echo(output)
+
 
 cli.add_command(add, name='a')
 cli.add_command(add, name='addm')
 
+
 @cli.command()
-@click.argument('indexes',type=int,nargs=-1)
+@click.argument('indexes', type=int, nargs=-1)
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
-def do(ctx:click.Context, indexes:list[int], help):
-
+def do(ctx: click.Context, indexes: list[int], help):
     """
     Mark a task as completed
 
@@ -124,26 +129,28 @@ def do(ctx:click.Context, indexes:list[int], help):
     if not indexes:
         click.echo("No task index provided.")
         ctx.exit()
-    tasklist:TaskList = ctx.obj['tasklist']
+    tasklist: TaskList = ctx.obj['tasklist']
     for index in indexes:
-        task:Optional[Task] = tasklist.get(index=index,default=None)
+        task: Optional[Task] = tasklist.get(index=index, default=None)
         if task:
             task.mark_as_completed()
         if ctx.obj['vebrose']:
             if not task:
                 click.echo("Task not found.")
-            elif task.tags.get('rec',None):
-                click.echo(f"Task's due date has been changed. New task: {task}")
+            elif task.tags.get('rec', None):
+                click.echo(
+                    f"Task's due date has been changed. New task: {task}"
+                    )
             else:
                 click.echo(f"Task marked as completed: {task}")
-        
-    #TODO
+        save_tasklist(ctx=ctx, tasklist=None)
 
-@cli.command() #TODO aliases=['del', 'delete']
+
+@cli.command()  # TODO aliases=['del', 'delete']
 @click.argument('task_description')
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
-def rm(ctx:click.Context, index:list[int], help):
+def rm(ctx: click.Context, index: list[int], help):
 
     """
     Remove a task
@@ -164,13 +171,14 @@ def rm(ctx:click.Context, index:list[int], help):
     else:
         click.echo("Task not found.")
 
-@cli.command()#TODO aliases=['list']
-@click.option('-s','--sort', is_flag=True, help="Sort tasks")
+
+@cli.command()  # TODO aliases=['list']
+@click.option('-s', '--sort', is_flag=True, help="Sort tasks")
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
-def ls(ctx:click.Context,sort:bool, help:bool):
-
+def ls(ctx: click.Context, sort: bool, help: bool) -> None:
     """
+
     List tasks
 
     This function lists all tasks in the task list, optionally sorting them.
@@ -183,20 +191,19 @@ def ls(ctx:click.Context,sort:bool, help:bool):
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
-    taskList:TaskList = ctx.obj['tasklist']
+    taskList: TaskList = ctx.obj['tasklist']
     if sort:
         taskList.sort()
 
-    #TODO фильтрация по аргументам
+    # TODO фильтрация по аргументам
     if ctx.obj['json']:
         out = [task.to_dict() for task in taskList]
-        click.echo(json.dumps(out,ensure_ascii=False))
+        click.echo(json.dumps(out, ensure_ascii=False))
     else:
-        click.echo(taskList.to_string(color=not ctx.obj['no_color'],todotxt_format=ctx.obj['todotxt']))
-    
-    
+        click.echo(taskList.to_string(color=not ctx.obj['no_color'],
+                                      todotxt_format=ctx.obj['todotxt']))
 
-    
+
 cli.add_command(ls, "list")
 
 
@@ -213,25 +220,31 @@ def archive(ctx, help):
         ctx (click.Context): The Click context object.
         help (bool): Flag to show help message.
     """
+
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
-    archived:TaskList = ctx.obj['tasklist'].archive()
-    
+    archived: TaskList = ctx.obj['tasklist'].archive()
     if ctx.obj['vebrose']:
         click.echo(f"Archived {len(archived)} completed tasks")
 
+
 @cli.command()
 @click.argument('indexes')
-@click.option('-p', '--priority', type=click.Choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), help='Update priority (A-Z)')
-@click.option('-d', '--due', type=click.DateTime(formats=["%Y-%m-%d"]), help='Update due date (YYYY-MM-DD)')
+@click.option('-p', '--priority',
+              type=click.Choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+              help='Update priority (A-Z)'
+              )
+@click.option('-d', '--due', type=click.DateTime(formats=["%Y-%m-%d"]),
+              help='Update due date (YYYY-MM-DD)')
 @click.option('-t', '--tag', multiple=True, help='Update tags (key:value)')
 @click.option('-j', '--project', multiple=True, help='Update projects')
 @click.option('-c', '--context', multiple=True, help='Update contexts')
 @click.option('--description', help='Update description')
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
-def update(ctx, task_description, priority, due, tag, project, context, description, help):
+def update(ctx, task_description, priority, due, tag, project, context,
+           description, help):
     """Update a task"""
     if help:
         click.echo(ctx.get_help())
@@ -263,10 +276,11 @@ def update(ctx, task_description, priority, due, tag, project, context, descript
     else:
         click.echo("Task not found.")
 
+
 @cli.command()
 @click.argument('other_file', type=click.Path(exists=True))
 @click.pass_context
-def merge(ctx:click.Context, other_file:pathlib.Path):
+def merge(ctx: click.Context, other_file: pathlib.Path):
     """
     Merge tasks from another file
 
@@ -275,14 +289,14 @@ def merge(ctx:click.Context, other_file:pathlib.Path):
     with open(other_file, 'r') as file:
         other_content = file.read()
     other_tasklist = TaskList.from_string(other_content)
-    
     ctx.obj['tasklist'].merge(other_tasklist)
     click.echo(f"Merged tasks from {other_file}")
 
+
 @cli.command()
-@click.option('-r','--reverse', is_flag=True, help='Reverse the sort order')
+@click.option('-r', '--reverse', is_flag=True, help='Reverse the sort order')
 @click.pass_context
-def sort(ctx:click.Context, reverse:bool):
+def sort(ctx: click.Context, reverse: bool):
     """
     Sort tasks
 
@@ -293,7 +307,7 @@ def sort(ctx:click.Context, reverse:bool):
 
 @cli.command()
 @click.pass_context
-def get_priority_task(ctx:click.Context):
+def get_priority_task(ctx: click.Context):
     """
     Get the task with the highest priority
 
@@ -301,25 +315,31 @@ def get_priority_task(ctx:click.Context):
     """
     sorted_tasklist = ctx.obj['tasklist']
     sorted_tasklist.sort(reverse=False)
-    click.echo(f"Task with the highest priority: {sorted_tasklist[0].to_string()}")
+    click.echo(
+        f"Task with the highest priority: {sorted_tasklist[0].to_string()}"
+        )
+
 
 @cli.command()
 @click.pass_context
-def deduplicate(ctx:click.Context):
+def deduplicate(ctx: click.Context):
     """
     Deduplicate tasks
 
     This function removes duplicate tasks from the task list.
     """
-    tasklist:TaskList = ctx.obj['tasklist']
-    a:int = len(tasklist)
+    tasklist: TaskList = ctx.obj['tasklist']
+    a: int = len(tasklist)
     tasklist.deduplicate()
     a -= len(tasklist)
     if ctx.obj['vebrose']:
         click.echo(f"Deduplicated {a} tasks")
     save_tasklist(ctx)
 
-def save_tasklist(ctx:click.Context, tasklist:Optional[TaskList]=None) -> None:
+
+def save_tasklist(ctx: click.Context,
+                  tasklist: Optional[TaskList] = None
+                  ) -> None:
     """
     Save the task list to a file
 
@@ -335,14 +355,13 @@ def save_tasklist(ctx:click.Context, tasklist:Optional[TaskList]=None) -> None:
     path = pathlib.Path(ctx.obj['archive_file'])
     mode = 'a'
     if tasklist is None:
-        path:pathlib.Path = pathlib.Path(ctx.obj['todo_file'])
-        mode:str = 'w'
-        tasklist:TaskList = ctx.obj['tasklist']
-    
+        path: pathlib.Path = pathlib.Path(ctx.obj['todo_file'])
+        mode: str = 'w'
+        tasklist: TaskList = ctx.obj['tasklist']
+
     with open(path, mode) as file:
         file.write(tasklist.to_string())
-    
-    
-    
+
+
 if __name__ == '__main__':
     cli()
