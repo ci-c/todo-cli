@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 import pathlib
 import json
-from typing import Optional
+from typing import Optional, List
 
 DEFAULT_PATH: pathlib.Path = pathlib.Path().cwd() / 'todo.txt'
 DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
@@ -127,7 +127,8 @@ def do(ctx: click.Context, indexes: list[int], help):
         click.echo(ctx.get_help())
         ctx.exit()
     if not indexes:
-        click.echo("No task index provided.")
+        if ctx.obj['vebrose']:
+            click.echo("No task index provided.")
         ctx.exit()
     tasklist: TaskList = ctx.obj['tasklist']
     for index in indexes:
@@ -146,12 +147,11 @@ def do(ctx: click.Context, indexes: list[int], help):
         save_tasklist(ctx=ctx, tasklist=None)
 
 
-@cli.command()  # TODO aliases=['del', 'delete']
-@click.argument('task_description')
+@cli.command()
+@click.argument('indexes', type=int, nargs=-1)
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
 @click.pass_context
-def rm(ctx: click.Context, index: list[int], help):
-
+def rm(ctx: click.Context, indexes: list[int], help):
     """
     Remove a task
 
@@ -159,22 +159,46 @@ def rm(ctx: click.Context, index: list[int], help):
 
     Args:
         ctx (click.Context): The Click context object.
-        index (list[int]): List of task indexes to remove.
+        indexes (list[int]): List of task indexes to remove.
         help (bool): Flag to show help message.
     """
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
-    if task := None:
-        ctx.obj['tasklist'].remove_task(task)
-        click.echo(f"Task removed: {task}")
-    else:
-        click.echo("Task not found.")
+
+    if not indexes:
+        if ctx.obj['vebrose']:
+            click.echo("No task index provided.")
+        ctx.exit()
+
+    tasklist: TaskList = ctx.obj['tasklist']
+    remove_tasks: List[Task] = []
+    not_found_indexes: List[int] = []
+
+    for index in indexes:
+        if task := tasklist.get(index=index):
+            remove_tasks.append(task)
+        else:
+            not_found_indexes.append(str(index))
+    for task in remove_tasks:
+        tasklist.remove_task(task)
+    if ctx.obj['vebrose']:
+        if not_found_indexes:
+            click.echo(f"Task(s) not found: {', '.join(not_found_indexes)}")
+        if remove_tasks:
+            click.echo(f"Task(s) removed:\n\t{'\n\t'.join(remove_tasks)}")
+    save_tasklist(ctx=ctx, tasklist=None)
+
+
+cli.add_command(rm, name='r')
+cli.add_command(rm, name='del')
+cli.add_command(rm, name='delete')
 
 
 @cli.command()  # TODO aliases=['list']
 @click.option('-s', '--sort', is_flag=True, help="Sort tasks")
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.argument('', )
 @click.pass_context
 def ls(ctx: click.Context, sort: bool, help: bool) -> None:
     """
