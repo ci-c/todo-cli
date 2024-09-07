@@ -58,7 +58,7 @@ def cli(ctx: click.Context, help: bool, file: pathlib.Path,
     todo_file = file
     ctx.obj['tasklist'] = TaskList()
     if os.path.exists(todo_file):
-        with open(todo_file, 'r') as file:
+        with open(todo_file, 'r', encoding='utf-8') as file:
             todo_content = file.read()
             ctx.obj['tasklist'].from_string(todo_content)
     ctx.obj['todo_file'] = todo_file
@@ -195,12 +195,12 @@ cli.add_command(rm, name='del')
 cli.add_command(rm, name='delete')
 
 
-@cli.command()  # TODO aliases=['list']
+@cli.command()
 @click.option('-s', '--sort', is_flag=True, help="Sort tasks")
 @click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
-@click.argument('', )
+@click.argument('filter', type=str, help='')
 @click.pass_context
-def ls(ctx: click.Context, sort: bool, help: bool) -> None:
+def ls(ctx: click.Context, filter: str, sort: bool, help: bool) -> None:
     """
 
     List tasks
@@ -215,17 +215,17 @@ def ls(ctx: click.Context, sort: bool, help: bool) -> None:
     if help:
         click.echo(ctx.get_help())
         ctx.exit()
-    taskList: TaskList = ctx.obj['tasklist']
+    task_list: TaskList = ctx.obj['tasklist']
     if sort:
-        taskList.sort()
+        task_list.sort()
 
     # TODO фильтрация по аргументам
     if ctx.obj['json']:
-        out = [task.to_dict() for task in taskList]
+        out = [task.to_dict() for task in task_list]
         click.echo(json.dumps(out, ensure_ascii=False))
     else:
-        click.echo(taskList.to_string(color=not ctx.obj['no_color'],
-                                      todotxt_format=ctx.obj['todotxt']))
+        click.echo(task_list.to_string(color=not ctx.obj['no_color'],
+                                       todotxt_format=ctx.obj['todotxt']))
 
 
 cli.add_command(ls, "list")
