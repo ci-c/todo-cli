@@ -6,7 +6,7 @@ handles global options.
 
 
 import click
-from src.tasklist import TaskList
+from tasklist import TaskList
 from task import Task
 from datetime import datetime
 import os
