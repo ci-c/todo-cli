@@ -1,0 +1,36 @@
+# Python-related
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Project-specific
+todo.txt
+archive.txt
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak

@@ -1,6 +1,6 @@
-# [WiP] Todo.txt CLI Manager
+# [WIP] Todo.txt CLI Manager
 
-Todo.txt CLI Manager is a command-line interface tool for managing your tasks using the Todo.txt format. This simple and efficient tool helps you organize your to-do list directly from the terminal. However, it's important to note that the Todo.txt format does not provide backward compatibility, so users may need to adjust their existing todo.txt files to work with this tool.
+Todo.txt CLI Manager is a command-line interface tool for managing your tasks using the Todo.txt format. This simple and efficient tool helps you organize your to-do list directly from the terminal.
 
 ## Features
 
@@ -8,78 +8,121 @@ Todo.txt CLI Manager is a command-line interface tool for managing your tasks us
 - List all tasks
 - Mark tasks as complete
 - Remove tasks
-- Filter tasks by project or context
-- Sort tasks by priority or due date
+- Update tasks
+- Archive completed tasks
+- Merge tasks from another file
+- Sort tasks
+- Get the highest priority task
+- Deduplicate tasks
 
 ## Installation
 
-1. Clone the repository:
+Clone the repository:
 
-   ```sh
-   git clone https://github.com/ci-c/todo-cli.git
-   cd todo-cli
-   ```
+```sh
+git clone https://github.com/ci-c/todo-cli.git
+cd todo-cli
+```
 
-2. Install the required dependencies:
+Install the required dependencies:
 
-   ```sh
-   pip install -r requirements.txt
-   ```
+```sh
+pip install -r requirements.txt
+```
 
 ## Usage
 
 To use the Todo.txt CLI Manager, run the following command:
 
 ```sh
-python src/cli.py [COMMAND] [OPTIONS]
+python todo_cli/cli.py [COMMAND] [OPTIONS]
 ```
 
 Available commands:
 
-- `add`: Add a new task
-- `do`: Mark a task as completed
-- `rm`: Remove a task
-- `ls`: List tasks
+- `add` (`a`, `addm`): Add a new task(s)
+- `do`: Mark a task(s) as completed
+- `rm` (`r`, `del`, `delete`): Remove a task(s)
+- `ls` (`list`): List tasks
 - `archive`: Archive completed tasks
 - `update`: Update a task
+- `merge`: Merge tasks from another file
+- `sort`: Sort tasks
+- `get_priority_task`: Get the task with the highest priority
+- `deduplicate`: Remove duplicate tasks
 
 For detailed information on each command and its options, use the `--help` flag:
 
 ```sh
-python src/cli.py [COMMAND] --help
+python todo_cli/cli.py [COMMAND] --help
 ```
+
+### Global Options
+
+- `-h`, `--help`: Show help message and exit
+- `-V`, `--version`: Show version and exit
+- `-v`, `--verbose`: Be more verbose
+- `-f`, `--file`: Path to the todo.txt file
+- `--archive-file`: Path to the archive.txt file
+- `-c`, `--no-color`: Disable colors in output
+- `--todotxt`: Use Todo.txt format
+- `-j`, `--json`: Use JSON format
 
 ## Examples
 
-1. Add a new task:
+Add a new task:
 
-   ```sh
-   python src/cli.py add "Buy groceries" -p A -d 2023-05-01 -t shopping:food -j personal -c errands
-   ```
+```sh
+python todo_cli/cli.py add "Buy groceries -p A -d 2023-05-01 -t shopping:food -j personal -c errands"
+```
 
-2. List all tasks:
+List all tasks:
 
-   ```sh
-   python src/cli.py ls
-   ```
+```sh
+python todo_cli/cli.py ls
+```
 
-3. Mark a task as completed:
+Mark a task as completed:
 
-   ```sh
-   python src/cli.py do 1
-   ```
+```sh
+python todo_cli/cli.py do 1
+```
 
-4. Update a task:
+Update a task:
 
-   ```sh
-   python src/cli.py update 2 -p B -d 2023-05-15 --description "Finish project report"
-   ```
+```sh
+python todo_cli/cli.py update 2 -p B -d 2023-05-15 --description "Finish project report"
+```
 
-5. Archive completed tasks:
+Archive completed tasks:
 
-   ```sh
-   python src/cli.py archive
-   ```
+```sh
+python todo_cli/cli.py archive
+```
+
+Merge tasks from another file:
+
+```sh
+python todo_cli/cli.py merge other_todo.txt
+```
+
+Sort tasks:
+
+```sh
+python todo_cli/cli.py sort
+```
+
+Get the highest priority task:
+
+```sh
+python todo_cli/cli.py get_priority_task
+```
+
+Deduplicate tasks:
+
+```sh
+python todo_cli/cli.py deduplicate
+```
 
 ## Contributing
 
@@ -87,4 +130,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License
+This project is licensed under the MIT License. See the LICENSE file for details.
