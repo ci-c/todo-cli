@@ -6,8 +6,8 @@ handles global options.
 
 
 import click
-from tasklist import TaskList
 from task import Task
+from tasklist import TaskList
 from datetime import datetime
 import os
 import pathlib

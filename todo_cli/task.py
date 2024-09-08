@@ -1,3 +1,11 @@
+"""
+Represents a task with various attributes such as priority, completion status,
+creation and completion dates, associated projects and contexts, tags, and a description.
+
+The `Task` class provides methods to compare tasks based on priority, creation date,
+and description.
+"""
+
 from dataclasses import dataclass, field
 from typing import List, Optional, Callable, Iterator, Any, Tuple
 import re
