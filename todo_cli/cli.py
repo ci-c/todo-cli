@@ -5,14 +5,15 @@ handles global options.
 """
 
 
-import click
-from task import Task
-from tasklist import TaskList
-from datetime import datetime
+import json
 import os
 import pathlib
-import json
-from typing import Optional, List
+from datetime import datetime
+from typing import List, Optional
+
+import click
+from todo_cli.task import Task
+from todo_cli.tasklist import TaskList
 
 DEFAULT_PATH: pathlib.Path = pathlib.Path().cwd() / 'todo.txt'
 DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
@@ -315,9 +316,9 @@ def merge(ctx: click.Context, other_file: pathlib.Path):
 
     This function merges tasks from another file into the current task list.
     """
-    with open(other_file, 'r') as file:
+    with open(other_file, 'r', encoding='utf-8') as file:
         other_content = file.read()
-    other_tasklist = TaskList.from_string(other_content)
+    other_tasklist: TaskList = TaskList().from_string(other_content)
     ctx.obj['tasklist'].merge(other_tasklist)
     click.echo(f"Merged tasks from {other_file}")
 
@@ -388,9 +389,5 @@ def save_tasklist(ctx: click.Context,
         mode: str = 'w'
         tasklist: TaskList = ctx.obj['tasklist']
 
-    with open(path, mode) as file:
+    with open(path, mode, encoding='utf-8') as file:
         file.write(tasklist.to_string())
-
-
-if __name__ == '__main__':
-    cli()
