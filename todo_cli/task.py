@@ -378,9 +378,9 @@ class Task:
                 interval_str = interval_str[1:]
             time_units = {
                 'd': lambda n: relativedelta(days=n),
-                'b': lambda n: relativedelta(days=n),  #TODO! Busness days counting is not worked correctly
-                'w': lambda n: relativedelta(weeks=n),
-                'm': lambda n: relativedelta(months=n),
+                'b': lambda n: relativedelta(days=n),  # TODO! Busness days
+                'w': lambda n: relativedelta(weeks=n),  # counting is not
+                'm': lambda n: relativedelta(months=n),  # worked correctly
                 'y': lambda n: relativedelta(years=n)
             }
 
@@ -407,6 +407,19 @@ class Task:
         return current_date + interval
 
     def is_full_task(self) -> bool:
+        """
+        Determines if the task is considered full based on its attributes.
+
+        A task is deemed full if it has a description, a priority, and a
+        completion date. This method checks these attributes and returns a
+        boolean indicating the completeness of the task.
+
+        Args:
+            self: The instance of the task.
+
+        Returns:
+            bool: True if the task is full, False otherwise.
+        """
         return (
             self.description is not None
             and self.priority is not None
@@ -433,30 +446,54 @@ class Task:
         """
         return True
 
-    def is_planed_event(self) -> bool:  # TODO
+    def is_planed_event(self) -> bool:
+        """
+        Check if the task is a planned event.
+
+        Returns:
+            bool: True if the task is a planned event, False otherwise.
+        """
+        # TODO: Implement the logic to determine if the task is a planned event
         pass
 
-    def is_planable_task(self) -> bool:  # TODO
+    def is_planable_task(self) -> bool:
+        """
+        Check if the task is a plannable task.
+
+        Returns:
+            bool: True if the task is plannable, False otherwise.
+        """
+        # TODO: Implement the logic to determine if the task is plannable
         pass
 
     def is_overdue(self) -> bool:
+        """
+        Check if the task is overdue.
+
+        Returns:
+            bool: True if the task is overdue, False otherwise.
+        """
         if self.completion_date is None:
             return False
         if isinstance(self.completion_date, date):
             return self.completion_date < date.today()
         else:
             return self.completion_date < datetime.now()
+
     def to_dict(self) -> dict:
-        out: dict = {
+        """
+        Convert the task to a dictionary representation.
+
+        Returns:
+            dict: A dictionary containing the task's attributes.
+        """
+        return {
             'priority': self.priority,
             'description': self.description,
             'complited': self.completed,
-            'completion_date': (
-                self.completion_date.isoformat() if self.completion_date else None
-            ),
+            'completion_date': self.completion_date.isoformat() if self.completion_date else None,
+            'contexts': self.contexts,
+            'tags': self.tags,
+            'projects': self.projects,
+            'creation_date': self.creation_date.isoformat() if self.creation_date else None,
         }
-        out['contexts'] = self.contexts
-        out['tags'] = self.tags
-        out['projects'] = self.projects
-        out['creation_date'] = self.creation_date.isoformat() if self.creation_date else None
-        return out
