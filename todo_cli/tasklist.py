@@ -18,15 +18,17 @@ from todo_cli.task import Task
 
 class TaskList:
     """
-    Represents a list of Task objects with various operations to manipulate and query the list.
+    Represents a list of Task objects with various operations to manipulate
+    and query the list.
     """
 
-    def __init__(self, tasks: List[Task] = []):
+    def __init__(self, tasks: Optional[List[Task]] = None):
         """
         Initializes a TaskList with an optional list of Task objects.
 
         Args:
-            tasks (List[Task], optional): Initial list of tasks. Defaults to None.
+            tasks (List[Task], optional): Initial list of tasks. Defaults to
+            None.
         """
         self.tasks: List[Task] = tasks or []
 
@@ -63,9 +65,10 @@ class TaskList:
     def __setitem__(self, index: int, value: Task) -> None:
         self.tasks[index] = value
 
-    def get[D](self, index:int, default:D=None) -> Task | D:
+    def get[D: Any](self, index: int, default: 'D' = None) -> Task | 'D':
         """
-        Returns the task at the specified index or a default value if the index is out of bounds.
+        Returns the task at the specified index or a default value if the
+        index is out of bounds.
         """
         try:
             return self.tasks[index]
@@ -88,12 +91,12 @@ class TaskList:
 
     def __repr__(self) -> str:
         """
-        Returns a string representation of the TaskList (same as __str__).
+        Returns a string representation of the TaskList.
 
         Returns:
             str: A string representation of the TaskList.
         """
-        return self.__str__()
+        return str(self.tasks)
 
     def __contains__(self, task: Task) -> bool:
         """
@@ -116,8 +119,13 @@ class TaskList:
         """
         self.tasks.append(task)
     
-    def index(self, task:Task, start:Optional[int]=None,stop:Optional[int]=None)->int:
-        return self.tasks.index(value=task,start=start,stop=stop)
+    def index(
+        self,
+        task: Task,
+        start: Optional[int] = None,
+        stop: Optional[int] = None
+    ) -> int:
+        return self.tasks.index(value=task, start=start, stop=stop)
     
     def remove_task(self, task: Task) -> None:
         """
@@ -128,24 +136,35 @@ class TaskList:
         """
         self.tasks.remove(task)
     
-    def selfcheck(self, autorepiar:bool=False)->dict:
+    def selfcheck(self, autorepiar: bool = False) -> dict:
         pass # return result, errors, autofixed tasks for diff
 
-    def sort(self, key: Optional[Callable[[Task], Any]] = None, reverse: bool = False) -> None:
+    def sort(
+        self,
+        key: Optional[Callable[[Task], Any]] = None,
+        reverse: bool = False
+    ) -> None:
         """
-        Sorts the tasks in the list based on the given key function or real priority.
+        Sorts the tasks in the list based on the given key function or real
+        priority.
 
         Args:
-            key (Optional[Callable[[Task], Any]], optional): The key function for sorting. Defaults to None.
-            reverse (bool, optional): Whether to sort in reverse order. Defaults to False.
+            key (Optional[Callable[[Task], Any]], optional): The key function
+            for sorting. Defaults to None.
+            reverse (bool, optional): Whether to sort in reverse order.
+            Defaults to False.
         """
+        def default_key(task: Task) -> Any:
+            return task.get_real_priority()
+
         if key is None:
-            key = lambda task: task.get_real_priority()
+            key = default_key
         self.tasks.sort(key=key, reverse=reverse)
 
     def filter(self, condition: Callable[[Task], bool]) -> 'TaskList':
         """
-        Returns a new TaskList containing tasks that satisfy the given condition.
+        Returns a new TaskList containing tasks that satisfy the given
+        condition.
 
         Args:
             condition (Callable[[Task], bool]): The condition function.
@@ -157,25 +176,24 @@ class TaskList:
 
     def find(self, condition: Callable[[Task], bool]) -> Optional[Task]:
         """
-        Returns the first task that satisfies the given condition, or None if no such task is found.
+        Returns the first task that satisfies the given condition, or None if
+        no such task is found.
 
         Args:
             condition (Callable[[Task], bool]): The condition function.
 
         Returns:
-            Optional[Task]: The first task that satisfies the condition, or None.
+            Optional[Task]: The first task that satisfies the condition, or
+            None.
         """
-        for task in self.tasks:
-            if condition(task):
-                return task
-        return None
+        return next((task for task in self.tasks if condition(task)), None)
 
-    def find_all(self, condition: Callable[[Task], bool])->List[Task]:
+    def find_all(self, condition: Callable[[Task], bool]) -> List[Task]:
         """
         Returns a list of all tasks that satisfy the given condition.
         Args:
             condition (Callable[[Task], bool]): The condition function.
-            
+
         Returns:
             List[Task]: A list of tasks that satisfy the condition.
         """
@@ -183,13 +201,15 @@ class TaskList:
 
     def map(self, func: Callable[[Task], Any]) -> List[Any]:
         """
-        Applies the given function to each task and returns a list of the results.
+        Applies the given function to each task and returns a list of the
+        results.
 
         Args:
             func (Callable[[Task], Any]): The function to apply to each task.
 
         Returns:
-            List[Any]: A list of results after applying the function to each task.
+            List[Any]: A list of results after applying the function to each
+            task.
         """
         return list(map(func, self.tasks))
 
@@ -201,28 +221,54 @@ class TaskList:
             List[Task]: A copy of the list of tasks.
         """
         return self.tasks.copy()
-    def to_string(self, color:bool=False, todotxt_format:bool=True) -> str:
-        return '\n'.join(task.to_string(color=color, todotxt_format=todotxt_format) for task in self.tasks)
-    
-    def __str__(self) -> str:
-        return self.to_string
 
-    
+    def to_string(
+        self,
+        color: bool = False,
+        todotxt_format: bool = True
+    ) -> str:
+        """
+        Generates a string representation of the TaskList, with
+        each task's string representation separated by a newline.
+
+        Args:
+            color (bool): Whether to include ANSI color codes in the output.
+            todotxt_format (bool): Whether to format the output
+            in the todo.txt format.
+
+        Returns:
+            str: A string representation of the TaskList.
+        """
+
+        return '\n'.join(
+            task.to_string(color=color, todotxt_format=todotxt_format)
+            for task in self.tasks
+        )
+
+    def __str__(self) -> str:
+        return self.to_string()
+
     def archive(self) -> 'TaskList':
         """
-        Archives the completed tasks in the list, returning a new TaskList containing the archived tasks.
+        Archives the completed tasks in the list, returning a new TaskList
+        containing the archived tasks.
         """
-        archived_tasks = TaskList([task for task in self.tasks if task.completed])
+        archived_tasks = TaskList(
+            [task for task in self.tasks if task.completed]
+            )
         self.tasks = [task for task in self.tasks if not task.completed]
         return archived_tasks
-    
+
     def merge(self, other_list: 'TaskList') -> None:
         """
-        Merges this TaskList with another TaskList, combining tasks from both lists.
-        This function is designed to synchronize different versions of the same list.
+        Merges this TaskList with another TaskList, combining tasks from both
+        lists.
+        This function is designed to synchronize different versions of the
+        same list.
 
         The merge process follows these rules:
-        1. Tasks present in both lists are updated with the latest information.
+        1. Tasks present in both lists are updated with the latest
+           information.
         2. Tasks present only in the other list are added to this list.
         3. Tasks present only in this list are retained.
 
@@ -233,19 +279,25 @@ class TaskList:
             None
         """
         for other_task in other_list.tasks:
-            existing_task = self.find(lambda t: t.to_string() == other_task.to_string())
+            existing_task = self.find(
+                lambda t: t.to_string() == other_task.to_string()
+            )
             existing_task_by_id = False
             if other_task.tags.get("id", default=None) is not None:
-                existing_task_by_id = self.find(lambda t: t.tags.get("id", default=None) == other_task.tags["id"])
+                existing_task_by_id = self.find(
+                    lambda t: t.tags.get("id", default=None) == other_task.tags["id"]
+                )
             if existing_task:
                 pass
             elif existing_task_by_id:
-                task_id:int = self.index(existing_task_by_id)
-                self[task_id] = existing_task_by_id.merge(other_task=other_task)
+                task_id: int = self.index(existing_task_by_id)
+                self[task_id] = existing_task_by_id.merge(
+                    other_task=other_task
+                    )
             else:
                 self.add_task(other_task)
-            #TODO жёсткий мердж, мягкий мердж, возврат конфликтов
-        
+            # TODO: жёсткий мердж, мягкий мердж, возврат конфликтов
+
     def from_string(self, tasks_string: str) -> None:
         """
         Parses a todotxt string representation of tasks.
@@ -253,23 +305,27 @@ class TaskList:
         for line in tasks_string.split('\n'):
             if line.startswith('#'):
                 continue
-            line = line.strip()
-            if line:
+            if line := line.strip():
                 task = Task().from_string(line)
                 self.add_task(task)
-    def chek_orphan_dependencies(self)->List[Task]:
+
+    def chek_orphan_dependencies(self) -> List[Task]:
         """
         Checks for orphan dependencies in the task list.
         """
-        output:TaskList = TaskList()
+        output: TaskList = TaskList()
         for task in self.tasks:
             for dep_id in task.projects:
-                dep = self.find(lambda t: t.tags.get("id", default=None) == dep_id)
+                dep = self.find(
+                    lambda t: t.tags.get("id", default=None) == dep_id
+                )
                 if dep is None:
                     output.add_task(task)
+
     def _build_dependency_graph(self) -> Dict[str, List[str]]:
         """
-        Builds a graph where keys are task IDs and values are lists of dependent task IDs.
+        Builds a graph where keys are task IDs and values are lists of
+        dependent task IDs.
         Returns a dictionary representing the dependency graph.
         """
         graph: Dict[str, List[str]] = {task.id: [] for task in self.tasks}
@@ -280,10 +336,11 @@ class TaskList:
                 graph[dep_id].append(task.id)
         return graph
 
-    def check_circle_dependencies(self)->List[List[Task]]:
+    def check_circle_dependencies(self) -> List[List[Task]]:
         """
         Finds all cycles in the task dependency graph.
-        Returns a list of cycles, where each cycle is represented as a list of tasks.
+        Returns a list of cycles, where each cycle is represented as a list
+        of tasks.
         """
         graph = self._build_dependency_graph()
         visited: set[str] = set()
@@ -294,7 +351,10 @@ class TaskList:
             if task_id in rec_stack:
                 # Found a cycle
                 cycle_start_index = path.index(task_id)
-                cycle = [self.find(lambda t: t.id == pid) for pid in path[cycle_start_index:]]
+                cycle = [
+                    self.find(lambda t: t.id == pid)
+                    for pid in path[cycle_start_index:]
+                ]
                 cycles.append(cycle)
                 return
 
@@ -321,25 +381,47 @@ class TaskList:
         """
         Checks for duplicate tasks in the task list.
         """
-        duplicates:List[List[Task]] = []
+        duplicates: List[List[Task]] = []
         for task in self.tasks:
             if task.tags.get("id", default=None) is not None:
-                duplicates.append(self.find_all(lambda t: t.tags.get("id", default=None) == task.tags["id"]))
-    
-    def deduplicate(self)->None:
+                duplicates.append(self.find_all(
+                    lambda t: t.tags.get("id", default=None) == task.tags["id"]
+                    ))
+        return duplicates
+
+    def deduplicate(self) -> None:
         """
         Removes duplicate tasks from the task list.
         """
-        duplicates:List[List[Task]] = []
-        for task in self.tasks:
-            if task.tags.get("id", default=None) is not None:
-                duplicates.append(self.find_all(lambda t: t.to_dict() == task.to_dict()))
+        duplicates = [
+            self.find_all(lambda t: t.to_dict() == task.to_dict())
+            for task in self.tasks
+        ]
         for duplicate_group in duplicates:
             if len(duplicate_group) > 1:
                 for duplicate in duplicate_group[1:]:
                     self.remove_task(duplicate)
-    
+
     def replan_overdue_tasks(self):
+        """
+        Replans all overdue tasks in the task list.
+
+        This method iterates through all tasks in the task list and checks if
+        each task is overdue. If a task is overdue, it calls the `plan_task`
+        method to replan the task.
+        """
         pass
-    def plan_task(self, task:Task)->Optional[Task]: # if error return None
+
+    def plan_task(self, task: Task) -> Optional[Task]:  # if error return None
+        """
+        Plans a task by updating its due date, priority, and other properties
+        as needed.
+
+        Args:
+            task (Task): The task to be planned.
+
+        Returns:
+            Optional[Task]: The planned task, or None if an error occurred
+            during planning.
+        """
         pass
