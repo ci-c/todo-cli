@@ -1,7 +1,12 @@
 #!/bin/python3
+"""
+This function initializes the CLI application, sets up the context, and
+handles global options.
+"""
+
 
 import click
-from tasklist import TaskList
+from src.tasklist import TaskList
 from task import Task
 from datetime import datetime
 import os
