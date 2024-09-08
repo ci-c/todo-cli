@@ -118,15 +118,32 @@ class TaskList:
             task (Task): The task to add.
         """
         self.tasks.append(task)
-    
+
     def index(
         self,
         task: Task,
         start: Optional[int] = None,
         stop: Optional[int] = None
     ) -> int:
+        """
+        Returns the index of the specified task in the task list.
+
+        This method searches for the given task within the list of tasks and returns its index. 
+        If the task is not found, a ValueError will be raised.
+
+        Args:
+            task (Task): The task to find in the list.
+            start (Optional[int]): The starting index for the search (inclusive). Defaults to None.
+            stop (Optional[int]): The ending index for the search (exclusive). Defaults to None.
+
+        Returns:
+            int: The index of the task in the list.
+
+        Raises:
+            ValueError: If the task is not found in the list.
+        """
         return self.tasks.index(value=task, start=start, stop=stop)
-    
+
     def remove_task(self, task: Task) -> None:
         """
         Removes a task from the list.
@@ -135,7 +152,7 @@ class TaskList:
             task (Task): The task to remove.
         """
         self.tasks.remove(task)
-    
+
     def selfcheck(self, autorepiar: bool = False) -> dict:
         pass # return result, errors, autofixed tasks for diff
 

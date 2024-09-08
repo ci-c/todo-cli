@@ -174,6 +174,17 @@ class Task:
         )
 
     def from_string(self, task_string: str) -> 'Task':
+        """
+        Constructs a Task object from a string representation in
+        the todo.txt format.
+
+        Args:
+            task_string (str): The string representation of the task
+            in todo.txt format.
+
+        Returns:
+            Task: A Task object constructed from the input string.
+        """
         def extract_priority(line: str) -> tuple:
             priority = None
             if line.startswith('(') and ')' in line:
@@ -194,8 +205,6 @@ class Task:
             return priority, line
 
         def extract_creation_date(line: str) -> tuple:
-            from contextlib import suppress
-
             words = line.split()
             creation_date = None
             if words:
@@ -259,36 +268,36 @@ class Task:
         parts: list[str] = []
 
         def post_process(
-            str: Optional[str | list[str]],
+            text_value: Optional[str | list[str]],
             soft_function: Optional[Callable[[str], str]] = None,
             hard_function: Optional[Callable[[str], str]] = None,
             is_itter: bool = False
         ):
-            if str is None:
+            if text_value is None:
                 pass
             elif is_itter:
-                for i in str:
+                for i in text_value:
                     post_process(
-                        str=i,
+                        text_value=i,
                         soft_function=soft_function,
                         hard_function=hard_function,
                         is_itter=False
                     )
             else:
                 if soft_function:
-                    str = soft_function(str)
+                    text_value = soft_function(text_value)
                 if color:
                     if hard_function:
-                        str = hard_function(str)
+                        text_value = hard_function(text_value)
                     elif self.priority == 0:
-                        str = click.style(str, fg="red")
+                        text_value = click.style(text_value, fg="red")
                     elif self.priority == 1:
-                        str = click.style(str, fg="yellow")
+                        text_value = click.style(text_value, fg="yellow")
                     elif self.priority == 2:
-                        str = click.style(str, fg="green")
+                        text_value = click.style(text_value, fg="green")
                     elif self.priority == 3:
-                        str = click.style(str, fg="blue")
-                parts.append(str.__str__())
+                        text_value = click.style(text_value, fg="blue")
+                parts.append(str(text_value))
 
         if todotxt_format:
             post_process(
@@ -298,7 +307,9 @@ class Task:
             post_process(
                 self.creation_date,
                 soft_function=lambda x: x.isoformat(),
-                hard_function=lambda str: click.style(str, fg="bright_black")
+                hard_function=lambda text_value: click.style(
+                    text_value, fg="bright_black"
+                    )
             )
             post_process(
                 self.priority,
@@ -317,33 +328,40 @@ class Task:
         post_process(
             self.completion_date,
             soft_function=lambda x: f'due:{x.isoformat()}',
-            hard_function=lambda str: click.style(str, fg="blue")
+            hard_function=lambda text_value: click.style(text_value, fg="blue")
         )
         post_process(
             self.projects,
             soft_function=lambda x: f"+{x}",
-            hard_function=lambda str: click.style(str, fg="magenta"),
+            hard_function=lambda text_value: click.style(
+                text_value, fg="magenta"
+                ),
             is_itter=True
         )
         post_process(
             self.contexts,
             soft_function=lambda x: f"@{x}",
-            hard_function=lambda str: click.style(str, fg="cyan"),
+            hard_function=lambda text_value: click.style(
+                text_value, fg="cyan"
+                ),
             is_itter=True
         )
         for key, value in self.tags.items():
+            def hard_f_rec(text_value):
+                return click.style(text_value, fg="blue")
+
+            def hard_f_other(text_value):
+                return click.style(text_value, fg="bright_white")
+
             if key == "rec":
-                hard_f = lambda str: click.style(str, fg="blue")
+                post_process(f"{key}:{value}", hard_function=hard_f_rec)
             else:
-                hard_f = lambda str: click.style(str, fg="bright_white")
-            post_process(f"{key}:{value}", hard_function=hard_f)
+                post_process(f"{key}:{value}", hard_function=hard_f_other)
 
         output: str = " ".join(parts)
         if color and self.completed:
-                output = click.unstyle(output)
-                output = click.style(
-                    output, fg='bright_black', strikethrough=True
-                )
+            output = click.unstyle(output)
+            output = click.style(output, fg='bright_black', strikethrough=True)
         return output
 
     def mark_as_completed(self) -> Optional['Task']:
@@ -356,9 +374,9 @@ class Task:
             `None`.
         """
         self.completed = True
-        if 'rec' in self.tags.keys():
+        if 'rec' in self.tags:
             old: Task = self
-            self.completion_date = self.calculate_next_due_date()
+            self.completion_date = self.get_next_due_date()
             self.completed = False
             return old
         return None
