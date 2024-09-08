@@ -1,5 +1,20 @@
-from task import Task
-from typing import List, Iterator, Optional, Callable, Any, Dict
+"""
+Represents a list of Task objects with various operations to manipulate and
+query the list.
+
+The TaskList class provides methods to add, remove, sort, filter, and perform
+other operations on a list of Task objects. It also includes utility methods
+like `to_string()` to generate a string representation of the task list, and
+`merge()` to synchronize different versions of the same list.
+
+The class also includes methods to check for orphan dependencies, detect
+circular dependencies, and remove duplicate tasks based on their unique IDs.
+"""
+
+from typing import Any, Callable, Dict, Iterator, List, Optional
+
+from todo_cli.task import Task
+
 
 class TaskList:
     """
