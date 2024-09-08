@@ -26,16 +26,6 @@ Todo.txt CLI Manager is a command-line interface tool for managing your tasks us
    pip install -r requirements.txt
    ```
 
-3. Install from AUR (Arch Linux users):
-
-   For Arch Linux users, you can install the `todo-cli` package from the Arch User Repository (AUR). This can be done using an AUR helper like `yay` or `paru`:
-
-   ```sh
-   yay -S todo-cli
-   ```
-
-   This will install the Todo.txt CLI Manager package and all its dependencies.
-
 ## Usage
 
 To use the Todo.txt CLI Manager, run the following command:
