@@ -508,7 +508,7 @@ class Task:
         )
 
     def merge(self, other_task: 'Task', hard: bool = False,
-              self_priority: bool = True) -> bool:
+              self_priority: bool = True) -> dict[str, dict[str, bool] | bool]:
         """
         Merges the current task with another task, updating various
         attributes based on specified rules. This function allows
@@ -524,25 +524,50 @@ class Task:
             current task's priority when merging. Defaults to True.
 
         Returns:
-            bool: True if there was a conflict in merging
-            descriptions, False otherwise.
+            dict[str, bool]: A dictionary indicating the status of the
+            merge operation for each attribute.
         """
-        conflict: bool = False
-        new_task: Task = self.copy()
-        # Merge priority
 
+        def merge_property(self_value, other_value,
+                           hard: bool, self_priority: bool):
+            conflict = False
+            if not self_value:
+                self_value = other_value
+            elif self_value != other_value and other_value:
+                conflict = True
+                if hard and not self_priority:
+                    self_value = other_value
+            return conflict, self_value
 
-        # Merge completion status
-
-        # Merge dates
-
-
-        # Merge dependencies, contexts, and tags
-
-
-        # Merge description
-        
-
+        conflict = {}
+        self.priority, conflict['priority'] = merge_property(
+            self.priority, other_task.priority, hard, self_priority
+        )
+        self.description, conflict['description'] = merge_property(
+            self.description, other_task.description, hard, self_priority
+        )
+        self.completed, conflict['completed'] = merge_property(
+            self.completed, other_task.completed, hard, self_priority
+        )
+        self.due_date, conflict['due_date'] = merge_property(
+            self.due_date, other_task.due_date, hard, self_priority
+        )
+        for context in other_task.contexts:
+            if context not in self.contexts:
+                self.contexts.append(context)
+        for tag in other_task.tags:
+            if tag not in self.tags:
+                self.tags[tag] = other_task.tags[tag]
+            else:
+                self.tags[tag], conflict['tags'][tag] = merge_property(
+                    self.tags[tag], other_task.tags[tag], hard, self_priority
+                )
+        for dependency in other_task.dependencies:
+            if dependency not in self.dependencies:
+                self.dependencies.append(dependency)
+        self.creation_date, conflict['creation_date'] = merge_property(
+            self.creation_date, other_task.creation_date, hard, self_priority
+        )
         return conflict
 
     def is_planable_task(self) -> bool:
@@ -586,7 +611,7 @@ class Task:
             'due_date': (self.due_date.isoformat() if self.due_date else None),
             'contexts': self.contexts,
             'tags': self.tags,
-            'projects': self.dependencies,
+            'projects': self.dependencies,  # FIXME: (old name)
             'creation_date': (self.creation_date.isoformat()
                               if self.creation_date else None),
         }
