@@ -456,7 +456,7 @@ class Task:
 
     def merge(self, other_task: 'Task', hard: bool = False,
               self_priority: bool = True) -> bool:  # TODO
-        """_summary_
+        """
 
         Args:
             other_task (Task): _description_
