@@ -35,7 +35,7 @@ pip install -r requirements.txt
 To use the Todo.txt CLI Manager, run the following command:
 
 ```sh
-python todo_cli/cli.py [COMMAND] [OPTIONS]
+python todo_cli/main.py [COMMAND] [OPTIONS]
 ```
 
 Available commands:
@@ -54,7 +54,7 @@ Available commands:
 For detailed information on each command and its options, use the `--help` flag:
 
 ```sh
-python todo_cli/cli.py [COMMAND] --help
+python todo_cli/main.py [COMMAND] --help
 ```
 
 ### Global Options
@@ -93,55 +93,55 @@ Tags:
 Add a new task:
 
 ```sh
-python todo_cli/cli.py add "Buy groceries -p A -d 2023-05-01 -t shopping:food -j personal -c errands"
+python todo_cli/main.py add "Buy groceries -p A -d 2023-05-01 -t shopping:food -j personal -c errands"
 ```
 
 List all tasks:
 
 ```sh
-python todo_cli/cli.py ls
+python todo_cli/main.py ls
 ```
 
 Mark a task as completed:
 
 ```sh
-python todo_cli/cli.py do 1
+python todo_cli/main.py do 1
 ```
 
 Update a task:
 
 ```sh
-python todo_cli/cli.py update 2 -p B -d 2023-05-15 --description "Finish project report"
+python todo_cli/main.py update 2 -p B -d 2023-05-15 --description "Finish project report"
 ```
 
 Archive completed tasks:
 
 ```sh
-python todo_cli/cli.py archive
+python todo_cli/main.py archive
 ```
 
 Merge tasks from another file:
 
 ```sh
-python todo_cli/cli.py merge other_todo.txt
+python todo_cli/main.py merge other_todo.txt
 ```
 
 Sort tasks:
 
 ```sh
-python todo_cli/cli.py sort
+python todo_cli/main.py sort
 ```
 
 Get the highest priority task:
 
 ```sh
-python todo_cli/cli.py get_priority_task
+python todo_cli/main.py get_priority_task
 ```
 
 Deduplicate tasks:
 
 ```sh
-python todo_cli/cli.py deduplicate
+python todo_cli/main.py deduplicate
 ```
 
 ## Contributing
