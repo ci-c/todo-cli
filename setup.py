@@ -17,7 +17,7 @@ setup(
     name="todo-cli",
     version="0.1.0",
     author="ci-c",
-    author_email="author@example.com",
+    author_email="wblmmn@gmail.com",
     description="A command-line interface tool for managing tasks using the "
                 "Todo.txt format",
     long_description=long_description,
