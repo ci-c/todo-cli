@@ -175,6 +175,55 @@ class Task:
             f"tags={self.tags}, description='{self.description}')"
         )
 
+    def copy(self) -> 'Task':
+        """
+        Creates and returns a deep copy of the Task object.
+
+        Returns:
+            Task: A new Task object with the same attributes as the original.
+        """
+        return Task(
+            priority=self.priority,
+            completed=self.completed,
+            creation_date=self.creation_date,
+            due_date=self.due_date,
+            dependencies=self.dependencies.copy(),
+            contexts=self.contexts.copy(),
+            tags=self.tags.copy(),
+            description=self.description
+        )
+
+    def from_dict(self, task_dict: dict) -> None:
+        """
+        Constructs a Task object from a dictionary representation.
+        Args:
+            task_dict (dict): A dictionary containing the attributes of the
+            task.
+        """
+        self.priority = task_dict.get('priority')
+        self.completed = task_dict.get('completed')
+        self.creation_date = task_dict.get('creation_date')
+        self.due_date = task_dict.get('due_date')
+        self.dependencies = task_dict.get('dependencies', [])
+        self.contexts = task_dict.get('contexts', [])
+        self.tags = task_dict.get('tags', [])
+        self.description = task_dict.get('description')
+
+    def from_other(self, other: 'Task') -> None:
+        """
+        Copies the attributes of another Task object to this Task object.
+        Args:
+            other (Task): The other Task object to copy attributes from.
+        """
+        self.priority = other.priority
+        self.completed = other.completed
+        self.creation_date = other.creation_date
+        self.due_date = other.due_date
+        self.dependencies = other.dependencies.copy()
+        self.contexts = other.contexts.copy()
+        self.tags = other.tags.copy()
+        self.description = other.description
+
     def from_string(self, task_string: str) -> 'Task':
         """
         Constructs a Task object from a string representation in
@@ -459,18 +508,42 @@ class Task:
         )
 
     def merge(self, other_task: 'Task', hard: bool = False,
-              self_priority: bool = True) -> bool:  # TODO:
+              self_priority: bool = True) -> bool:
         """
+        Merges the current task with another task, updating various
+        attributes based on specified rules. This function allows
+        for the combination of task properties such as priority,
+        completion status, dates, dependencies, contexts, tags, and
+        description, while also handling potential conflicts.
 
         Args:
-            other_task (Task): _description_
-            hard (bool, optional): _description_. Defaults to False.
-            self_priority (bool, optional): _description_. Defaults to True.
+            other_task (Task): The task to merge with the current task.
+            hard (bool, optional): If True, forces the description to be
+            replaced regardless of conflicts. Defaults to False.
+            self_priority (bool, optional): If True, retains the
+            current task's priority when merging. Defaults to True.
 
         Returns:
-            bool: return True if found merge conflict.
+            bool: True if there was a conflict in merging
+            descriptions, False otherwise.
         """
-        return True
+        conflict: bool = False
+        new_task: Task = self.copy()
+        # Merge priority
+
+
+        # Merge completion status
+
+        # Merge dates
+
+
+        # Merge dependencies, contexts, and tags
+
+
+        # Merge description
+        
+
+        return conflict
 
     def is_planable_task(self) -> bool:
         """
