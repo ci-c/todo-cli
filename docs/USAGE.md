@@ -29,9 +29,6 @@ Todo-cli is a powerful task management tool that allows you to organize, track, 
 | `context` | Add, remove, or list contexts for tasks |
 | `search` | Search for tasks based on various criteria |
 | `stats` | Display statistics about your tasks |
-| `export` | Export tasks to different formats (e.g., CSV, JSON) |
-| `import` | Import tasks from different formats |
-| `sync` | Synchronize tasks with external services (e.g., cloud storage) |
 
 ## GLOBAL OPTIONS
 
