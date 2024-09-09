@@ -4,6 +4,7 @@ This function initializes the CLI application, sets up the context, and
 handles global options.
 """
 
+# TODO: вынести логику
 
 import json
 import os
@@ -196,9 +197,7 @@ cli.add_command(rm, name='delete')
 @click.pass_context
 def ls(ctx: click.Context, filter_a: str,
        sorting: bool, show_help: bool) -> None:
-    """
-
-    List tasks
+    """List tasks
 
     This function lists all tasks in the task list, optionally sorting them.
 
@@ -249,15 +248,15 @@ def archive(ctx, show_help):
 
 
 @cli.command()
-@click.argument('indexes')
+@click.argument('index')
 @click.option('-p', '--priority',
               type=click.Choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
               help='Update priority (A-Z)'
               )
 @click.option('-d', '--due', type=click.DateTime(formats=["%Y-%m-%d"]),
-              help='Update due date (YYYY-MM-DD)')
+              help='Update due date (YYYY-MM-DD)') # FIXME: type check is incorrect
 @click.option('-t', '--tag', multiple=True, help='Update tags (key:value)')
-@click.option('-j', '--project', multiple=True, help='Update projects')
+@click.option('-d', '--dep', multiple=True, help='Update projects')  # FIXME: rename to dependedies
 @click.option('-c', '--context', multiple=True, help='Update contexts')
 @click.option('--description', help='Update description')
 @click.option('-h', '--help', 'show_help', is_flag=True,
@@ -265,7 +264,7 @@ def archive(ctx, show_help):
               )
 @click.pass_context
 def update(ctx, task_description, priority, due, tag, project, context,
-           description, show_help):
+           description, show_help):   # TODO: is not working...
     """Update a task"""
 
     if show_help:
@@ -311,8 +310,18 @@ def merge(ctx: click.Context, other_file: pathlib.Path):
     with open(other_file, 'r', encoding='utf-8') as f:
         other_content = f.read()
     other_tasklist: TaskList = TaskList().from_string(other_content)
-    ctx.obj['tasklist'].merge(other_tasklist)
-    click.echo(f"Merged tasks from {other_file}")
+    conflicts = ctx.obj['tasklist'].merge(other_tasklist)
+    if ctx.obj['vebrose']:
+        if ctx.obj['json']:
+            click.echo(json.dumps(conflicts, ensure_ascii=False))
+        elif conflicts:
+            click.echo(f"Conflicts found: {conflicts}")
+        else:
+            click.echo("No conflicts found.")
+        click.echo(f"Merged tasks from {other_file}")
+        click.echo(ctx.obj['tasklist'])
+
+    save_tasklist(ctx)
 
 
 @cli.command()
