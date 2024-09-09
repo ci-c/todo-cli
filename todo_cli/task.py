@@ -61,7 +61,7 @@ class Task:
         Validates that the priority is a number between 0 and 25 (inclusive).
         Raises ValueError if the priority is invalid.
         """
-        if self.priority is not None and not (0 <= self.priority <= 25):
+        if self.priority is not None and not 0 <= self.priority <= 25:
             raise ValueError(
                 "Priority must be a number between 0 and 25 (inclusive)."
             )
