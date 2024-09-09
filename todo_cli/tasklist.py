@@ -441,7 +441,9 @@ class TaskList:
         each task is overdue. If a task is overdue, it calls the `plan_task`
         method to replan the task.
         """
-        pass
+        for task in self.tasks:
+            if task.is_overdue():
+                self.plan_task(task)
 
     def plan_task(self, task: Task) -> Optional[Task]:  # if error return None
         """

@@ -472,16 +472,6 @@ class Task:
         """
         return True
 
-    def is_planed_event(self) -> bool:
-        """
-        Check if the task is a planned event.
-
-        Returns:
-            bool: True if the task is a planned event, False otherwise.
-        """
-        # TODO: Implement the logic to determine if the task is a planned event
-        pass
-
     def is_planable_task(self) -> bool:
         """
         Check if the task is a plannable task.
@@ -489,8 +479,11 @@ class Task:
         Returns:
             bool: True if the task is plannable, False otherwise.
         """
-        # TODO: Implement the logic to determine if the task is plannable
-        pass
+        return (
+            self.description is not None
+            and self.due_date is None
+            and self.tags.get('dur') is not None
+        )
 
     def is_overdue(self) -> bool:
         """
