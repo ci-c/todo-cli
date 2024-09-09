@@ -37,7 +37,6 @@ DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
 def cli(ctx: click.Context, help_show: bool, file: pathlib.Path,
         archive_file, no_color: bool, todotxt: bool, json_f: bool,
         version: bool, vebrose: bool) -> None:
-
     """Todo.txt CLI manager
 
     This function initializes the CLI application, sets up the context, and
