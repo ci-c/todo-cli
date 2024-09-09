@@ -539,7 +539,7 @@ class Task:
                     self_value = other_value
             return conflict, self_value
 
-        conflict = {}
+        conflict: dict[str, dict[str, bool] | bool] = {}
         self.priority, conflict['priority'] = merge_property(
             self.priority, other_task.priority, hard, self_priority
         )

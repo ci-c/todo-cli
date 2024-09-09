@@ -287,7 +287,8 @@ class TaskList:
         self.tasks = [task for task in self.tasks if not task.completed]
         return archived_tasks
 
-    def merge(self, other_list: 'TaskList') -> None:
+    def merge(self, other_list: 'TaskList', hard: bool = False,
+              self_priority: bool = True) -> Any:   # TODO: fix return type
         """
         Merges this TaskList with another TaskList, combining tasks from both
         lists.
@@ -304,8 +305,10 @@ class TaskList:
             other_list (TaskList): Another TaskList to merge with this one.
 
         Returns:
-            None
+
         """
+
+        conflicts: Dict[Task, Dict[str, dict[str, bool] | bool]] = {}
         for other_task in other_list.tasks:
             existing_task = self.find(
                 lambda t, other_task=other_task:
@@ -321,12 +324,15 @@ class TaskList:
                 pass
             elif existing_task_by_id:
                 task_id: int = self.index(existing_task_by_id)
-                self[task_id] = existing_task_by_id.merge(
-                    other_task=other_task
+                self[task_id], conflicts[existing_task_by_id] = (
+                    existing_task_by_id.merge(
+                        other_task=other_task, hard=hard,
+                        self_priority=self_priority
                     )
+                )
             else:
                 self.add_task(other_task)
-            # TODO: жёсткий мердж, мягкий мердж, возврат конфликтов
+        return conflicts
 
     def from_string(self, tasks_string: str) -> None:
         """
