@@ -154,7 +154,15 @@ class TaskList:
         self.tasks.remove(task)
 
     def selfcheck(self, autorepiar: bool = False) -> dict:
-        pass # return result, errors, autofixed tasks for diff
+        """
+        Performs a self-check on the task list.
+        Args:
+            autorepiar (bool, optional): Whether to automatically repair the
+            task list. Defaults to False.
+        Returns:
+            dict: A dictionary containing the result of the self-check.
+        """
+        pass  # return result, errors, autofixed tasks for diff
 
     def sort(
         self,
