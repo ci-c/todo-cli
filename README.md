@@ -86,11 +86,13 @@ Tags:
 - `rec:` repeating task (`1d`, `+4y`, `1m1d`)
 - `id:` task id
 - `due:` due date or date and time in ISO format (`2023-05-01`)
-- `dur:` duration (WIP)
+- `dur:` duration (max duration) (WIP)
+- `dur-min:` min duration (WIP)
 - `cost:` (WIP)
 - `deadline:` deadline date or date and time in ISO format (`2023-05-01T12:00`) (WIP)
 - `edit:` last edit date and time in ISO format (`2023-05-01T12:00`) (WIP)
-- `redue:` counter of overdueing (WIP)
+- `over:` counter of overdueing (WIP)
+- `redue:` counter of done reapit (for habbits) (WIP)
 
 Other features:
 
