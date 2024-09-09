@@ -68,6 +68,26 @@ python todo_cli/cli.py [COMMAND] --help
 - `--todotxt`: Use Todo.txt format
 - `-j`, `--json`: Use JSON format
 
+### Available todo.txt format options
+
+Basic todo.txt format:
+
+- Description
+- Priority (`(A)`, `(B)`, `(C)`, etc.)
+- Done flag (`[x]`)
+- Projects (`+example`) (using for dependencies)
+- Contexts (`@example`)
+- Tags (`example:abc`)
+- Creation date or date and time in ISO format (`2023-05-01T12:00`)
+
+Tags:
+
+- `rec:` repeating task (`1d`, `+4y`, `1m1d`)
+- `id:` task id
+- `due:` due date or date and time in ISO format (`2023-05-01`)
+- `dur:` duration (WIP)
+- `cost:` (WIP)
+
 ## Examples
 
 Add a new task:

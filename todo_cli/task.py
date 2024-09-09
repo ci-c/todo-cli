@@ -34,7 +34,7 @@ class Task:
     priority: Optional[int] = None
     completed: bool = False
     creation_date: Optional[datetime | date] = None
-    completion_date: Optional[datetime | date] = None
+    due_date: Optional[datetime | date] = None
     projects: List[str] = field(default_factory=list)
     contexts: List[str] = field(default_factory=list)
     tags: dict = field(default_factory=dict)
@@ -44,7 +44,7 @@ class Task:
         self.completed = False
         self.priority = None
         self.creation_date = None
-        self.completion_date = None
+        self.due_date = None
         self.projects = []
         self.contexts = []
         self.tags = {}
@@ -71,7 +71,7 @@ class Task:
             self.priority,
             self.completed,
             self.creation_date,
-            self.completion_date,  # TODO: rename to due_date
+            self.due_date,
             tuple(self.projects),  # TODO: rename to dependedes
             tuple(self.contexts),
             frozenset(self.tags.items()),
@@ -92,7 +92,7 @@ class Task:
             - Context count (int): Negative count of associated context.
             - Description (str): Task description for tie-breaking.
         """
-        due_var: datetime | date = self.completion_date or (
+        due_var: datetime | date = self.due_date or (
             datetime.now() + timedelta(days=1)
         )
         if isinstance(due_var, date) and not isinstance(due_var, datetime):
@@ -170,7 +170,7 @@ class Task:
         return (
             f"Task(priority={self.priority}, completed={self.completed}, "
             f"creation_date={self.creation_date}, "
-            f"completion_date={self.completion_date}, "
+            f"due_date={self.due_date}, "
             f"projects={self.projects}, contexts={self.contexts}, "
             f"tags={self.tags}, description='{self.description}')"
         )
@@ -247,7 +247,7 @@ class Task:
                 key, value = word.split(':', 1)
                 if key == 'due':
                     with suppress(ValueError, OverflowError):
-                        self.completion_date = (
+                        self.due_date = (
                             dtparser.isoparse(value)
                             if 'T' in value
                             else dtparser.parse(value).date()
@@ -330,7 +330,7 @@ class Task:
             )
         post_process(self.description)
         post_process(
-            self.completion_date,
+            self.due_date,
             soft_function=lambda x: f'due:{x.isoformat()}',
             hard_function=lambda text_value: click.style(text_value, fg="blue")
         )
@@ -380,7 +380,7 @@ class Task:
         self.completed = True
         if 'rec' in self.tags:
             old: Task = self
-            self.completion_date = self.get_next_due_date()
+            self.due_date = self.get_next_due_date()
             self.completed = False
             return old
         return None
@@ -390,7 +390,7 @@ class Task:
         Calculates the next due date based on the recurrence pattern.
         """
         # This implementation handles both 'rec:1d' and 'rec:+1d' formats
-        current_date: datetime | date = self.completion_date or datetime.now()
+        current_date: datetime | date = self.due_date or datetime.now()
 
         def parse_recurring_interval(interval_str: str) -> tuple[
             relativedelta, bool
@@ -433,7 +433,7 @@ class Task:
         Determines if the task is considered full based on its attributes.
 
         A task is deemed full if it has a description, a priority, and a
-        completion date. This method checks these attributes and returns a
+        due date. This method checks these attributes and returns a
         boolean indicating the completeness of the task.
 
         Args:
@@ -445,17 +445,22 @@ class Task:
         return (
             self.description is not None
             and self.priority is not None
-            and self.completion_date is not None
+            and self.due_date is not None
         )
 
-    def is_full_event(self) -> bool:  # TODO
+    def is_full_event(self) -> bool:
         """
         Checks if the event has all the required fields
         """
-        pass
+        return (
+            self.description is not None
+            and isinstance(datetime, self.due_date)
+            and self.tags.get('dur') is not None
+            
+        )
 
     def merge(self, other_task: 'Task', hard: bool = False,
-              self_priority: bool = True) -> bool:  # TODO
+              self_priority: bool = True) -> bool:  # TODO:
         """
 
         Args:
@@ -495,12 +500,12 @@ class Task:
         Returns:
             bool: True if the task is overdue, False otherwise.
         """
-        if self.completion_date is None:
+        if self.due_date is None:
             return False
-        if isinstance(self.completion_date, date):
-            return self.completion_date < date.today()
+        if isinstance(self.due_date, date):
+            return self.due_date < date.today()
         else:
-            return self.completion_date < datetime.now()
+            return self.due_date < datetime.now()
 
     def to_dict(self) -> dict:
         """
@@ -513,8 +518,7 @@ class Task:
             'priority': self.priority,
             'description': self.description,
             'complited': self.completed,
-            'completion_date': (self.completion_date.isoformat()
-                                if self.completion_date else None),
+            'due_date': (self.due_date.isoformat() if self.due_date else None),
             'contexts': self.contexts,
             'tags': self.tags,
             'projects': self.projects,
