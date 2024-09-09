@@ -102,6 +102,7 @@ Add a new task:
 
 ```sh
 python todo_cli/main.py add "Buy groceries -p A -d 2023-05-01 -t shopping:food -j personal -c errands"
+# not supported
 ```
 
 List all tasks:
