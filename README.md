@@ -89,6 +89,11 @@ Tags:
 - `dur:` duration (WIP)
 - `cost:` (WIP)
 - `deadline:` deadline date or date and time in ISO format (`2023-05-01T12:00`) (WIP)
+- `edit:` last edit date and time in ISO format (`2023-05-01T12:00`) (WIP)
+
+Other features:
+
+- comments - strart line with `#`
 
 ## Examples
 
