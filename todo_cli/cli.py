@@ -38,22 +38,10 @@ def cli(ctx: click.Context, help_show: bool, file: pathlib.Path,
         archive_file, no_color: bool, todotxt: bool, json_f: bool,
         version: bool, vebrose: bool) -> None:
 
-    """
-    Todo.txt CLI manager
+    """Todo.txt CLI manager
 
     This function initializes the CLI application, sets up the context, and
     handles global options.
-
-    Args:
-        ctx (click.Context): The Click context object.
-        help (bool): Flag to show help message.
-        file: Path to the todo.txt file.
-        archive_file: Path to the archive.txt file.
-        no_color (bool): Flag to disable colors in output.
-        todotxt (bool): Flag to use Todo.txt format.
-        json (bool): Flag to use JSON format.
-        version (bool): Flag to show version information.
-        vebrose (bool): Flag to enable verbose output.
     """
     if help_show:
         click.echo(ctx.get_help())
