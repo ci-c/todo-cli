@@ -318,8 +318,9 @@ def merge(ctx: click.Context, other_file: pathlib.Path):
             click.echo(f"Conflicts found: {conflicts}")
         else:
             click.echo("No conflicts found.")
-        click.echo(f"Merged tasks from {other_file}")
-        click.echo(ctx.obj['tasklist'])
+        if not ctx.obj['json']:
+            click.echo(f"Merged tasks from {other_file}")
+            click.echo(ctx.obj['tasklist'])
 
     save_tasklist(ctx)
 
