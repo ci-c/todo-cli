@@ -128,13 +128,16 @@ class TaskList:
         """
         Returns the index of the specified task in the task list.
 
-        This method searches for the given task within the list of tasks and returns its index. 
-        If the task is not found, a ValueError will be raised.
+        This method searches for the given task within the list of tasks and
+        returns its index. If the task is not found, a ValueError will be
+        raised.
 
         Args:
             task (Task): The task to find in the list.
-            start (Optional[int]): The starting index for the search (inclusive). Defaults to None.
-            stop (Optional[int]): The ending index for the search (exclusive). Defaults to None.
+            start (Optional[int]): The starting index for the search
+                (inclusive). Defaults to None.
+            stop (Optional[int]): The ending index for the search (exclusive).
+                Defaults to None.
 
         Returns:
             int: The index of the task in the list.
@@ -305,12 +308,14 @@ class TaskList:
         """
         for other_task in other_list.tasks:
             existing_task = self.find(
-                lambda t: t.to_string() == other_task.to_string()
+                lambda t, other_task=other_task:
+                    t.to_string() == other_task.to_string()
             )
             existing_task_by_id = False
             if other_task.tags.get("id", default=None) is not None:
                 existing_task_by_id = self.find(
-                    lambda t: t.tags.get("id", default=None) == other_task.tags["id"]
+                    lambda t, other_task=other_task:
+                        t.tags.get("id", default=None) == other_task.tags["id"]
                 )
             if existing_task:
                 pass
@@ -342,7 +347,8 @@ class TaskList:
         for task in self.tasks:
             for dep_id in task.projects:
                 dep = self.find(
-                    lambda t: t.tags.get("id", default=None) == dep_id
+                    lambda t, dep_id=dep_id:
+                        t.tags.get("id", default=None) == dep_id
                 )
                 if dep is None:
                     output.add_task(task)
@@ -377,8 +383,8 @@ class TaskList:
                 # Found a cycle
                 cycle_start_index = path.index(task_id)
                 cycle = [
-                    self.find(lambda t: t.id == pid)
-                    for pid in path[cycle_start_index:]
+                    self.find(lambda t, pid=path_id: t.id == pid)
+                    for path_id in path[cycle_start_index:]
                 ]
                 cycles.append(cycle)
                 return
@@ -406,20 +412,20 @@ class TaskList:
         """
         Checks for duplicate tasks in the task list.
         """
-        duplicates: List[List[Task]] = []
-        for task in self.tasks:
-            if task.tags.get("id", default=None) is not None:
-                duplicates.append(self.find_all(
-                    lambda t: t.tags.get("id", default=None) == task.tags["id"]
-                    ))
-        return duplicates
+        return [
+            self.find_all(lambda t, task_id=task.tags.get("id"):
+                          t.tags.get("id") == task_id)
+            for task in self.tasks
+            if task.tags.get("id") is not None
+        ]
 
     def deduplicate(self) -> None:
         """
         Removes duplicate tasks from the task list.
         """
         duplicates = [
-            self.find_all(lambda t: t.to_dict() == task.to_dict())
+            self.find_all(lambda t, task_dict=task.to_dict():
+                          t.to_dict() == task_dict)
             for task in self.tasks
         ]
         for duplicate_group in duplicates:
