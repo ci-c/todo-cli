@@ -107,7 +107,9 @@ class Task:
         if isinstance(creation_date, date) and not isinstance(
             creation_date, datetime
         ):
-            creation_date = datetime.combine(creation_date, datetime.min.time())
+            creation_date = datetime.combine(
+                creation_date, datetime.min.time()
+                )
 
         return (
             self.completed,
@@ -224,7 +226,9 @@ class Task:
 
         # Extract completion status
         self.completed = task_string.startswith('x ')
-        task_string = task_string[2:].strip() if self.completed else task_string
+        task_string = (
+            task_string[2:].strip() if self.completed else task_string
+        )
 
         # Extract priority
         self.priority, task_string = extract_priority(task_string)
@@ -509,9 +513,11 @@ class Task:
             'priority': self.priority,
             'description': self.description,
             'complited': self.completed,
-            'completion_date': self.completion_date.isoformat() if self.completion_date else None,
+            'completion_date': (self.completion_date.isoformat()
+                                if self.completion_date else None),
             'contexts': self.contexts,
             'tags': self.tags,
             'projects': self.projects,
-            'creation_date': self.creation_date.isoformat() if self.creation_date else None,
+            'creation_date': (self.creation_date.isoformat()
+                              if self.creation_date else None),
         }
