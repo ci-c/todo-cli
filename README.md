@@ -82,11 +82,13 @@ Basic todo.txt format:
 
 Tags:
 
+- `pri` alternative priority (`A`, `B`, `C`, etc.)
 - `rec:` repeating task (`1d`, `+4y`, `1m1d`)
 - `id:` task id
 - `due:` due date or date and time in ISO format (`2023-05-01`)
 - `dur:` duration (WIP)
 - `cost:` (WIP)
+- `deadline:` deadline date or date and time in ISO format (`2023-05-01T12:00`) (WIP)
 
 ## Examples
 

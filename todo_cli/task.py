@@ -456,7 +456,6 @@ class Task:
             self.description is not None
             and isinstance(datetime, self.due_date)
             and self.tags.get('dur') is not None
-            
         )
 
     def merge(self, other_task: 'Task', hard: bool = False,
