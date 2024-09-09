@@ -1,7 +1,7 @@
 """
 Represents a task with various attributes such as priority, completion status,
-creation and completion dates, associated projects and contexts, tags, and a
-description.
+creation and completion dates, associated dependencies and contexts, tags, and
+a description.
 
 The `Task` class provides methods to compare tasks based on priority, creation
 date, and description.
@@ -24,8 +24,8 @@ from dateutil.relativedelta import relativedelta
 class Task:
     """
     Represents a task with various attributes such as priority, completion
-    status, creation and completion dates, associated projects and contexts,
-    tags, and a description.
+    status, creation and completion dates, associated dependencies
+    and contexts, tags, and a description.
 
     The `Task` class provides methods to compare tasks based on priority,
     creation date, and description.
@@ -35,7 +35,7 @@ class Task:
     completed: bool = False
     creation_date: Optional[datetime | date] = None
     due_date: Optional[datetime | date] = None
-    projects: List[str] = field(default_factory=list)
+    dependencies: List[str] = field(default_factory=list)
     contexts: List[str] = field(default_factory=list)
     tags: dict = field(default_factory=dict)
     description: str = ""
@@ -45,7 +45,7 @@ class Task:
         self.priority = None
         self.creation_date = None
         self.due_date = None
-        self.projects = []
+        self.dependencies = []
         self.contexts = []
         self.tags = {}
         self.description = ""
@@ -72,7 +72,7 @@ class Task:
             self.completed,
             self.creation_date,
             self.due_date,
-            tuple(self.projects),  # TODO: rename to dependedes
+            tuple(self.dependencies),
             tuple(self.contexts),
             frozenset(self.tags.items()),
             self.description
@@ -116,7 +116,7 @@ class Task:
             due_var,
             self.priority if self.priority is not None else -1,
             creation_date or datetime.min,
-            -(len(self.projects) + len(self.contexts) + len(self.tags)),
+            -(len(self.dependencies) + len(self.contexts) + len(self.tags)),
             self.description
         )
 
@@ -171,7 +171,7 @@ class Task:
             f"Task(priority={self.priority}, completed={self.completed}, "
             f"creation_date={self.creation_date}, "
             f"due_date={self.due_date}, "
-            f"projects={self.projects}, contexts={self.contexts}, "
+            f"dependencies={self.dependencies}, contexts={self.contexts}, "
             f"tags={self.tags}, description='{self.description}')"
         )
 
@@ -240,7 +240,7 @@ class Task:
         words = task_string.split()
         for word in words:
             if word.startswith('+'):
-                self.projects.append(word[1:])
+                self.dependencies.append(word[1:])
             elif word.startswith('@'):
                 self.contexts.append(word[1:])
             elif ':' in word:
@@ -335,7 +335,7 @@ class Task:
             hard_function=lambda text_value: click.style(text_value, fg="blue")
         )
         post_process(
-            self.projects,
+            self.dependencies,
             soft_function=lambda x: f"+{x}",
             hard_function=lambda text_value: click.style(
                 text_value, fg="magenta"
@@ -513,7 +513,7 @@ class Task:
             'due_date': (self.due_date.isoformat() if self.due_date else None),
             'contexts': self.contexts,
             'tags': self.tags,
-            'projects': self.projects,
+            'projects': self.dependencies,
             'creation_date': (self.creation_date.isoformat()
                               if self.creation_date else None),
         }
