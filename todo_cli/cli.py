@@ -339,7 +339,7 @@ def sort(ctx: click.Context, reverse: bool):
 
 @cli.command()
 @click.pass_context
-def get_priority_task(ctx: click.Context):
+def get_priority(ctx: click.Context):
     """
     Get the task with the highest priority
 
