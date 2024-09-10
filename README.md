@@ -84,6 +84,8 @@ Tags:
 
 - `pri` alternative priority (`A`, `B`, `C`, etc.)
 - `rec:` repeating task (`1d`, `+4y`, `1m1d`)
+- `rec-lim:` repeating task limit (integer) (WIP)
+- `count:` counter of done repeat (for habits) (WIP)
 - `id:` task id
 - `due:` due date or date and time in ISO format (`2023-05-01`)
 - `dur:` duration (max duration) (WIP)
@@ -91,8 +93,7 @@ Tags:
 - `cost:` (WIP)
 - `deadline:` deadline date or date and time in ISO format (`2023-05-01T12:00`) (WIP)
 - `edit:` last edit date and time in ISO format (`2023-05-01T12:00`) (WIP)
-- `over:` counter of overdueing (WIP)
-- `redue:` counter of done repeat (for habits) (WIP)
+- `over-count:` counter of overdueing (WIP)
 
 Other features:
 
