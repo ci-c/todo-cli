@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "todo-cli"
+version = "0.1.0"
+description = "A powerful and intuitive command-line interface for managing your daily tasks and to-do lists. Boost your productivity with easy task creation, updating, and tracking right from your terminal."
+authors = ["ci-c <wblmmn@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+click = "^8.1.7"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
