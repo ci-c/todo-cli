@@ -582,19 +582,27 @@ class Task:
             and self.tags.get('dur') is not None
         )
 
-    def is_overdue(self) -> bool:
+    def is_overdue(self,
+                   virtual_now: Optional[date | datetime] = None
+                   ) -> bool:
         """
         Check if the task is overdue.
+
+        Args:
+            virtual_now (Optional[date | datetime]): The current date/time
+            to compare against. Defaults to None.
 
         Returns:
             bool: True if the task is overdue, False otherwise.
         """
         if self.due_date is None:
             return False
-        if isinstance(self.due_date, date):
-            return self.due_date < date.today()
-        else:
-            return self.due_date < datetime.now()
+
+        current_time = virtual_now or (
+            date.today() if isinstance(self.due_date, date) else datetime.now()
+            )
+
+        return self.due_date < current_time
 
     def to_dict(self) -> dict:
         """
