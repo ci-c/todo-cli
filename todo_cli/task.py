@@ -579,7 +579,6 @@ class Task:
         """
         return (
             self.description is not None
-            and self.due_date is None
             and self.tags.get('dur') is not None
         )
 
