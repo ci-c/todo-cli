@@ -615,11 +615,11 @@ class Task:
         return {
             'priority': self.priority,
             'description': self.description,
-            'complited': self.completed,
+            'completed': self.completed,
             'due_date': (self.due_date.isoformat() if self.due_date else None),
             'contexts': self.contexts,
             'tags': self.tags,
-            'projects': self.dependencies,  # FIXME: (old name)
+            'dependencies': self.dependencies,
             'creation_date': (self.creation_date.isoformat()
                               if self.creation_date else None),
         }
