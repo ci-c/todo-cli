@@ -12,7 +12,7 @@ circular dependencies, and remove duplicate tasks based on their unique IDs.
 """
 
 from typing import Any, Callable, Dict, Iterator, List, Optional
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from todo_cli.task import Task
 
@@ -469,7 +469,7 @@ class TaskList:
         """
         pass
 
-    def get_now(self, time: Optional[date | datetime]) -> List[Task]:
+    def get_now(self, time: Optional[datetime]) -> List[Task]:
         """
         Retrieves a list of tasks that are currently due based on the
         specified time.
@@ -485,6 +485,9 @@ class TaskList:
         Returns:
             List[Task]: A list of tasks that are currently due.
         """
+        if time is None:
+            time = datetime.now()
+
         def f(task: Task) -> bool:
             return (
                 task.is_full_event()

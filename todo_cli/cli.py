@@ -350,16 +350,17 @@ def get_now(ctx: click.Context, time: Optional[str]):
     if time:
         time = (dtparser.isoparse(time) if 'T' in time
                 else dtparser.parse(time).date())
-    now_task: Optional[Task] = tasklist.get_now(time)
+    now_task: List[Task] = tasklist.get_now(time)
     if ctx.obj['json']:
         click.echo(json.dumps(now_task))
-    elif now_task is None:
+    elif not now_task:
         click.echo('Nothing is planned for now.')
     else:
-        click.echo(now_task.to_string(
-            color=ctx.obj['color'],
-            todotxt_format=ctx.obj['todotxt']
-        ))
+        click.echo("\n".join(map(
+            lambda x: x.to_string(color=ctx.obj['color'],
+                                  todotxt_format=ctx.obj['todotxt']),
+            now_task
+            )))
 
 
 @cli.command()
