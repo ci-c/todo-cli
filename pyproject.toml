@@ -11,10 +11,12 @@ python = ">=3.12"
 click = ">=8.1.7"
 python-dateutil = ">=2.9.0.post0"
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.3.3"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+todo = "todo_cli.cli:cli"
