@@ -38,7 +38,7 @@ DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
               help='Path to the archive.txt file')
 @click.option('-c', '--no-color', is_flag=True,
               help='Disable colors in output')
-@click.option('--todotxt', is_flag=True)
+@click.option('-t', '--todotxt', is_flag=True)
 @click.option('-j', '--json', 'json_f', is_flag=True)
 @click.pass_context
 def cli(ctx: click.Context, help_show: bool, file: pathlib.Path,
@@ -228,7 +228,7 @@ def ls(ctx: click.Context, filter_a: str,
         out = [task.to_dict() for task in task_list]
         click.echo(json.dumps(out, ensure_ascii=False))
     else:
-        click.echo(task_list.to_string(color=not ctx.obj['no_color'],
+        click.echo(task_list.to_string(color=ctx.obj['color'],
                                        todotxt_format=ctx.obj['todotxt']))
 
 
