@@ -65,7 +65,7 @@ class TaskList:
     def __setitem__(self, index: int, value: Task) -> None:
         self.tasks[index] = value
 
-    def get[D: Any](self, index: int, default: 'D' = None) -> Task | 'D':
+    def get(self, index: int, default: Any = None) -> Task | Any:
         """
         Returns the task at the specified index or a default value if the
         index is out of bounds.
