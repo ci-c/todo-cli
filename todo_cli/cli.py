@@ -23,7 +23,8 @@ DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
 
 
 @click.group()
-@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.option('-h', '--help', 'help_show', is_flag=True,
+              help='Show this message and exit.')
 @click.option('-V', '--version', is_flag=True, help='Show version and exit.')
 @click.option('-v', '--vebrose', is_flag=True, help='Be more vebrose.')
 @click.option('-f', '--file', 'help_show', type=click.Path(),
@@ -107,7 +108,8 @@ cli.add_command(add, name='addm')
 
 @cli.command()
 @click.argument('indexes', type=int, nargs=-1)
-@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.option('-h', '--help', 'help_show', is_flag=True,
+              help='Show this message and exit.')
 @click.pass_context
 def do(ctx: click.Context, indexes: list[int], show_help):
     """
@@ -146,7 +148,8 @@ def do(ctx: click.Context, indexes: list[int], show_help):
 
 @cli.command()
 @click.argument('indexes', type=int, nargs=-1)
-@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.option('-h', '--help', 'help_show', is_flag=True,
+              help='Show this message and exit.')
 @click.pass_context
 def rm(ctx: click.Context, indexes: list[int], show_help):
     """
@@ -229,7 +232,8 @@ cli.add_command(ls, "list")
 
 
 @cli.command()
-@click.option('-h', '--help', is_flag=True, help='Show this message and exit.')
+@click.option('-h', '--help', 'help_show', is_flag=True,
+              help='Show this message and exit.')
 @click.pass_context
 def archive(ctx, show_help):
     """
@@ -256,8 +260,8 @@ def archive(ctx, show_help):
               type=click.Choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
               help='Update priority (A-Z)'
               )
-@click.option('-d', '--due', type=click.DateTime(formats=["%Y-%m-%d"]),
-              help='Update due date (YYYY-MM-DD)') # FIXME: type check is incorrect
+@click.option('-d', '--due', type=str,
+              help='Update due date (YYYY-MM-DD)')
 @click.option('-t', '--tag', multiple=True, help='Update tags (key:value)')
 @click.option('-d', '--dep', multiple=True, help='Update projects')  # FIXME: rename to dependedies
 @click.option('-c', '--context', multiple=True, help='Update contexts')
@@ -266,39 +270,14 @@ def archive(ctx, show_help):
               help='Show this message and exit.'
               )
 @click.pass_context
-def update(ctx, task_description, priority, due, tag, project, context,
+def update(ctx, task_description, priority, due, tag, dep, context,
            description, show_help):   # TODO: is not working...
     """Update a task"""
 
     if show_help:
         click.echo(ctx.get_help())
         ctx.exit()
-    if task := next(
-        (
-            t
-            for t in ctx.obj['tasklist'].to_list()
-            if t.description == task_description
-        ),
-        None,
-    ):
-        if priority:
-            task.set_priority(ord(priority) - 65)
-        if due:
-            task.set_completion_date(due)
-        if tag:
-            task.tags.clear()
-            for t in tag:
-                key, value = t.split(':', 1)
-                task.add_tag(key, value)
-        if project:
-            task.projects = list(project)
-        if context:
-            task.contexts = list(context)
-        if description:
-            task.set_description(description)
-        click.echo(f"Task updated: {task}")
-    else:
-        click.echo("Task not found.")
+    # TODO
 
 
 @cli.command()
