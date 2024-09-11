@@ -28,10 +28,13 @@ DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
 @click.option('-V', '--version', is_flag=True, help='Show version and exit.')
 @click.option('-v', '--vebrose', is_flag=True, help='Be more vebrose.')
 @click.option('-f', '--file', 'help_show', type=click.Path(),
-              envvar='TODOTXT_PATH', default=DEFAULT_PATH,
+              default=lambda: os.environ.get("TODOTXT_PATH", DEFAULT_PATH),
+              show_default=DEFAULT_PATH,
               help='Path to the todo.txt file')
-@click.option('--archive-file', type=click.Path(), envvar='ARCHIVE_PATH',
-              default=DEFAULT_PATH_ARCHIVE,
+@click.option('--archive-file', type=click.Path(),
+              default=lambda: os.environ.get(
+                  "ARCHIVE_PATH", DEFAULT_PATH_ARCHIVE),
+              show_default=DEFAULT_PATH_ARCHIVE,
               help='Path to the archive.txt file')
 @click.option('-c', '--no-color', is_flag=True,
               help='Disable colors in output')
@@ -39,8 +42,8 @@ DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
 @click.option('-j', '--json', 'json_f', is_flag=True)
 @click.pass_context
 def cli(ctx: click.Context, help_show: bool, file: pathlib.Path,
-        archive_file, no_color: bool, todotxt: bool, json_f: bool,
-        version: bool, vebrose: bool) -> None:
+        archive_file: pathlib.Path, no_color: bool, todotxt: bool,
+        json_f: bool, version: bool, vebrose: bool) -> None:
     """Todo.txt CLI manager
 
     This function initializes the CLI application, sets up the context, and
