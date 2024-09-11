@@ -202,7 +202,7 @@ cli.add_command(rm, name='delete')
 @click.option('-s', '--sort', 'sorting', is_flag=True, help="Sort tasks")
 @click.option('-h', '--help', 'show_help', is_flag=True,
               help='Show this message and exit.')
-@click.option('-f', '--filter', 'filter-a', type=str, 
+@click.option('-f', '--filter', 'filter_a', type=str, 
               help='Filter tasks by keyword')
 @click.pass_context
 def ls(ctx: click.Context, filter_a: str,
