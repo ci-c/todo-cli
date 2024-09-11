@@ -344,8 +344,8 @@ def get_priority(ctx: click.Context):
 @cli.command()
 @click.pass_context
 @click.option(
-    '-t', '--time',
-    type=str, help='Datetime or date in ISO format', required=False)  # TODO: trasfer to cli()
+    '-t', '--time',  # TODO: trasfer to cli()
+    type=str, help='Datetime or date in ISO format', required=False)
 def get_now(ctx: click.Context, time: Optional[str]):
     """
     Get the event planned for the current time.
