@@ -1,5 +1,6 @@
-import pytest
 from datetime import date
+
+import pytest
 
 from todo_cli.task import Task
 
