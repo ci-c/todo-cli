@@ -270,7 +270,7 @@ def archive(ctx, show_help):
 @click.option('-d', '--due', type=str,
               help='Update due date (YYYY-MM-DD)')
 @click.option('-t', '--tag', multiple=True, help='Update tags (key:value)')
-@click.option('-d', '--dep', multiple=True, help='Update projects')  # FIXME: rename to dependedies
+@click.option('-d', '--dependedies', multiple=True, help='Update dependedies')
 @click.option('-c', '--context', multiple=True, help='Update contexts')
 @click.option('--description', help='Update description')
 @click.option('-h', '--help', 'show_help', is_flag=True,
