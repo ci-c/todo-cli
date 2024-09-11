@@ -11,6 +11,7 @@ import os
 import pathlib
 from datetime import datetime
 from typing import List, Optional
+from dateutil import parser as dtparser
 
 import click
 from todo_cli.task import Task
@@ -58,7 +59,7 @@ def cli(ctx: click.Context, help_show: bool, file: pathlib.Path,
             ctx.obj['tasklist'].from_string(todo_content)
     ctx.obj['todo_file'] = todo_file
     ctx.obj['archive_file'] = archive_file
-    ctx.obj['no_color'] = no_color
+    ctx.obj['color'] = not no_color
     ctx.obj['todotxt'] = todotxt
     ctx.obj['json'] = json_f
     ctx.obj['vebrose'] = vebrose
@@ -350,6 +351,31 @@ def get_priority(ctx: click.Context):
     click.echo(
         f"Task with the highest priority: {sorted_tasklist[0].to_string()}"
         )
+
+
+@cli.command()
+@click.pass_context
+@click.option(
+    '-t', '--time',
+    type=str, help='Datetime or date in ISO format', required=False)
+def get_now(ctx: click.Context, time: Optional[str]):
+    """
+    Get the event planned for the current time.
+    """
+    tasklist: TaskList = ctx.obj['tasklist']
+    if time:
+        time = (dtparser.isoparse(time) if 'T' in time
+                else dtparser.parse(time).date())
+    now_task: Optional[Task] = tasklist.get_now()
+    if ctx.obj['json']:
+        click.echo(json.dumps(now_task))
+    elif now_task is None:
+        click.echo('Nothing is planned for now.')
+    else:
+        click.echo(now_task.to_string(
+            color=ctx.obj['color'],
+            todotxt_format=ctx.obj['todotxt']
+        ))
 
 
 @cli.command()
