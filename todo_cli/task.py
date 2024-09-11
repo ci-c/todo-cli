@@ -326,7 +326,7 @@ class Task:
             hard_function: Optional[Callable[[str], str]] = None,
             is_itter: bool = False
         ):
-            if text_value is None:
+            if text_value is None or text_value == '' or text_value == []:
                 pass
             elif is_itter:
                 for i in text_value:
@@ -411,7 +411,7 @@ class Task:
             else:
                 post_process(f"{key}:{value}", hard_function=hard_f_other)
 
-        output: str = " ".join(parts)
+        output: str = " ".join(filter(bool, parts))
         if color and self.completed:
             output = click.unstyle(output)
             output = click.style(output, fg='bright_black', strikethrough=True)
@@ -537,7 +537,7 @@ class Task:
                 conflict = True
                 if hard and not self_priority:
                     self_value = other_value
-            return conflict, self_value
+            return self_value, conflict
 
         conflict: dict[str, dict[str, bool] | bool] = {}
         self.priority, conflict['priority'] = merge_property(
@@ -555,6 +555,7 @@ class Task:
         for context in other_task.contexts:
             if context not in self.contexts:
                 self.contexts.append(context)
+        conflict['tags'] = {}
         for tag in other_task.tags:
             if tag not in self.tags:
                 self.tags[tag] = other_task.tags[tag]

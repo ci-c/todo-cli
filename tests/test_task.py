@@ -13,7 +13,7 @@ def sample_task():
         due_date=date(2023, 12, 31),
         dependencies=["project1"],
         contexts=["work"],
-        tags={"pri": "B", "due": "2023-12-31"},
+        tags={"tag": "tag1"},
         description="Sample task"
     )
 
@@ -25,7 +25,7 @@ def test_task_initialization(sample_task):
     assert sample_task.due_date == date(2023, 12, 31)
     assert sample_task.dependencies == ["project1"]
     assert sample_task.contexts == ["work"]
-    assert sample_task.tags == {"pri": "B", "due": "2023-12-31"}
+    assert sample_task.tags == {"tag": "tag1"}
     assert sample_task.description == "Sample task"
 
 
@@ -43,14 +43,16 @@ def test_task_validation():
          "Task with project and context"),
         ("Task with due:2023-12-31 tag", None, "Task with tag"),
     ])
-def test_task_from_string(task_string, expected_priority, expected_description):
+def test_task_from_string(task_string,
+                          expected_priority,
+                          expected_description):
     task = Task().from_string(task_string)
     assert task.priority == expected_priority
     assert task.description == expected_description
 
 
 def test_task_to_string(sample_task):
-    expected_output = "(B) 2023-01-01 Sample task due:2023-12-31 +project1 @work"
+    expected_output = "2023-01-01 (B) Sample task due:2023-12-31 +project1 @work tag:tag1"
     assert sample_task.to_string() == expected_output
 
 
