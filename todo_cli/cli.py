@@ -27,11 +27,11 @@ DEFAULT_PATH_ARCHIVE: pathlib.Path = pathlib.Path().cwd() / 'todo.archive.txt'
               help='Show this message and exit.')
 @click.option('-V', '--version', is_flag=True, help='Show version and exit.')
 @click.option('-v', '--vebrose', is_flag=True, help='Be more vebrose.')
-@click.option('-f', '--file', 'help_show', type=click.Path(),
+@click.option('-f', '--file',  # type=click.Path(),
               default=lambda: os.environ.get("TODOTXT_PATH", DEFAULT_PATH),
               show_default=DEFAULT_PATH,
               help='Path to the todo.txt file')
-@click.option('--archive-file', type=click.Path(),
+@click.option('--archive-file',  # type=click.Path(),
               default=lambda: os.environ.get(
                   "ARCHIVE_PATH", DEFAULT_PATH_ARCHIVE),
               show_default=DEFAULT_PATH_ARCHIVE,
