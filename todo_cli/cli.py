@@ -1,4 +1,5 @@
-#!/bin/python3
+#!/usr/bin/env python3
+
 """
 This function initializes the CLI application, sets up the context, and
 handles global options.
