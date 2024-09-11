@@ -84,7 +84,7 @@ def add(ctx: click.Context, task_string: str):
         ctx (click.Context): The Click context object.
         task_string (str): The task description to be added.
     """
-    if ctx.obj["help"]:
+    if False:
         click.echo(ctx.get_help())
         ctx.exit()
     output = []
