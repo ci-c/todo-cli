@@ -83,12 +83,14 @@ def test_task_merge():
     assert conflict["priority"]
     assert conflict["description"]
 
-
-def test_task_to_dict(sample_task):
+@pytest.mark.parametrize("key, expected_value", [
+    ("priority", 1),
+    ("description", "Sample task"),
+    ("due_date", "2023-12-31")
+])
+def test_task_to_dict(sample_task, key, expected_value):
     task_dict = sample_task.to_dict()
-    assert task_dict["priority"] == 1
-    assert task_dict["description"] == "Sample task"
-    assert task_dict["due_date"] == "2023-12-31"
+    assert task_dict[key] == expected_value
 
 
 if __name__ == "__main__":
