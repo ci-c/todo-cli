@@ -133,7 +133,7 @@ class Task:
         """
         if not isinstance(other, Task):
             return NotImplemented
-        return self._get_real_priority() == other._get_real_priority()
+        return self.get_real_priority() == other._get_real_priority()
 
     def __lt__(self, other: 'Task') -> bool:
         """
@@ -149,7 +149,7 @@ class Task:
         """
         if not isinstance(other, Task):
             return NotImplemented
-        return self._get_real_priority() < other._get_real_priority()
+        return self.get_real_priority() < other._get_real_priority()
 
     def __str__(self) -> str:
         """
