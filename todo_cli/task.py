@@ -78,7 +78,7 @@ class Task:
             self.description
         ))
 
-    def _get_real_priority(self) -> Tuple[
+    def get_real_priority(self) -> Tuple[
             bool, datetime, int, datetime, int, str
     ]:
         """

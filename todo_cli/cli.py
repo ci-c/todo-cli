@@ -89,20 +89,23 @@ def add(ctx: click.Context, task_string: str):
         ctx.exit()
     output = []
     for task_desc in task_string.splitlines():
-        task = Task(creation_date=datetime.now())
-        task.from_string(task_desc)
+        task = Task().from_string(task_desc)
+        if task.creation_date is None:
+            task.creation_date = datetime.now()
         ctx.obj['tasklist'].add_task(task)
         if ctx.obj['vebrose']:
-            if ctx.obj['todotxt']:
-                output.append(f"Task added: {task.to_string()}")
-            elif ctx.obj['json']:
+            if ctx.obj['json']:
                 output.append(task.to_dict())
             else:
-                output.append(task)
-    if ctx.obj['vebrose'] and ctx.obj['json']:
-        output = json.dumps(output)
+                output.append(f"Task added: {task.to_string(
+                    color=ctx.obj['color'],
+                    todotxt_format=ctx.obj['todotxt'])}")
     save_tasklist(ctx=ctx, tasklist=None)
-    click.echo(output)
+    if ctx.obj['vebrose'] and ctx.obj['json']:
+        click.echo(json.dumps(output))
+    elif output:
+        for line in output:
+            click.echo(line)
 
 
 cli.add_command(add, name='a')
