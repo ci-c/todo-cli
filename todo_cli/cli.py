@@ -341,7 +341,7 @@ def get_priority(ctx: click.Context):
 @click.pass_context
 @click.option(
     '-t', '--time',
-    type=str, help='Datetime or date in ISO format', required=False)
+    type=str, help='Datetime or date in ISO format', required=False)  # TODO: trasfer to cli()
 def get_now(ctx: click.Context, time: Optional[str]):
     """
     Get the event planned for the current time.
@@ -350,7 +350,7 @@ def get_now(ctx: click.Context, time: Optional[str]):
     if time:
         time = (dtparser.isoparse(time) if 'T' in time
                 else dtparser.parse(time).date())
-    now_task: Optional[Task] = tasklist.get_now()
+    now_task: Optional[Task] = tasklist.get_now(time)
     if ctx.obj['json']:
         click.echo(json.dumps(now_task))
     elif now_task is None:

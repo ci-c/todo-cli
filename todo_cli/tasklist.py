@@ -12,6 +12,7 @@ circular dependencies, and remove duplicate tasks based on their unique IDs.
 """
 
 from typing import Any, Callable, Dict, Iterator, List, Optional
+from datetime import date, datetime, timedelta
 
 from todo_cli.task import Task
 
@@ -451,6 +452,9 @@ class TaskList:
             if task.is_overdue():
                 self.plan_task(task)
 
+    def _build_timeline(self):
+        pass
+
     def plan_task(self, task: Task) -> Optional[Task]:  # if error return None
         """
         Plans a task by updating its due date, priority, and other properties
@@ -464,5 +468,27 @@ class TaskList:
             during planning.
         """
         pass
-    
-    
+
+    def get_now(self, time: Optional[date | datetime]) -> List[Task]:
+        """
+        Retrieves a list of tasks that are currently due based on the
+        specified time.
+
+        This method filters tasks to find those that are full events, have
+        a due date before the specified time, and whose duration extends
+        beyond that time. It returns a list of tasks that meet these criteria.
+
+        Args:
+            time (Optional[date | datetime]): The reference time to evaluate
+            the due status of tasks.
+
+        Returns:
+            List[Task]: A list of tasks that are currently due.
+        """
+        def f(task: Task) -> bool:
+            return (
+                task.is_full_event()
+                and task.due_date <= time
+                and (task.due_date + timedelta(
+                    minutes=task.tags["dur"])) >= time)  # TODO
+        return self.find_all(f)
