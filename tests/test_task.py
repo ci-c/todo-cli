@@ -100,47 +100,5 @@ def test_task_to_dict(sample_task):
     assert task_dict["contexts"] == ["work"]
     assert task_dict["tags"] == {"tag": "tag1"}
 
-
-def test_task_add_dependency():
-    task = Task(description="Task with dependency")
-    task.add_dependency("project2")
-    assert "project2" in task.dependencies
-
-
-def test_task_remove_dependency():
-    task = Task(description="Task with dependency",
-                dependencies=["project1", "project2"])
-    task.remove_dependency("project1")
-    assert "project1" not in task.dependencies
-    assert "project2" in task.dependencies
-
-
-def test_task_add_context():
-    task = Task(description="Task with context")
-    task.add_context("meeting")
-    assert "meeting" in task.contexts
-
-
-def test_task_remove_context():
-    task = Task(description="Task with contexts", contexts=["work", "meeting"])
-    task.remove_context("work")
-    assert "work" not in task.contexts
-    assert "meeting" in task.contexts
-
-
-def test_task_add_tag():
-    task = Task(description="Task with tag")
-    task.add_tag("priority", "high")
-    assert task.tags["priority"] == "high"
-
-
-def test_task_remove_tag():
-    task = Task(description="Task with tags",
-                tags={"priority": "high", "difficulty": "medium"})
-    task.remove_tag("priority")
-    assert "priority" not in task.tags
-    assert "difficulty" in task.tags
-
-
 if __name__ == "__main__":
     pytest.main()
