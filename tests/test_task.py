@@ -36,7 +36,8 @@ def test_task_validation():
 
 
 @pytest.mark.parametrize(
-    "task_string, expected_priority, expected_completed, expected_description", [
+    "task_string, expected_priority, expected_completed, expected_description",
+    [
         ("(A) Priority task", 0, False, "Priority task"),
         ("x Completed task", None, True, "Completed task"),
         ("2023-01-01 Task with date", None, False, "Task with date"),
@@ -99,6 +100,7 @@ def test_task_to_dict(sample_task):
     assert task_dict["dependencies"] == ["project1"]
     assert task_dict["contexts"] == ["work"]
     assert task_dict["tags"] == {"tag": "tag1"}
+
 
 if __name__ == "__main__":
     pytest.main()
