@@ -515,7 +515,7 @@ class Task:
         """
         return (
             self.description is not None
-            and isinstance(datetime, self.due_date)
+            and isinstance(self.due_date, datetime)
             and self.tags.get('dur') is not None
         )
 

@@ -161,10 +161,15 @@ def test_task_is_full_task():
 
 def test_task_is_full_event():
     """Test if a task is a full event."""
-    full_event = Task(description="Full event", due_date=datetime.now(), tags={"dur": "2h"})
+    full_event = Task(description="Full event",
+                      due_date=datetime.now(),
+                      tags={"dur": "2h"})
     assert full_event.is_full_event()
 
-    incomplete_event = Task(description="Incomplete event", due_date=date.today())
+    incomplete_event = Task(description="Incomplete event",
+                            due_date=date.today(),
+                            tags={"dur": "2h"})
+
     assert not incomplete_event.is_full_event()
 
 
