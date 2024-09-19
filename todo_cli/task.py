@@ -70,7 +70,10 @@ class Task:
         """
         Returns the alphabetical priority of the task.
         """
-        return chr(ord("a") + self.priority) if self.priority is not None else ""
+        if self.priority is not None:
+            return chr(ord("a") + self.priority)
+        else:
+            return ""
 
     def __hash__(self):
         return hash((
