@@ -2,6 +2,7 @@ import pytest
 from datetime import date
 from todo_cli.task import Task
 
+
 @pytest.mark.parametrize("input_string, expected_task", [
     ("(A) High priority task", {
         "description": "High priority task",
@@ -105,8 +106,9 @@ from todo_cli.task import Task
     }),
 ])
 def test_task_from_string(input_string, expected_task):
+    """Test task creation from string."""
     task = Task().from_string(input_string)
-    
+
     assert task.description == expected_task["description"]
     assert task.priority == expected_task["priority"]
     assert task.completed == expected_task["completed"]
@@ -116,36 +118,25 @@ def test_task_from_string(input_string, expected_task):
     assert task.contexts == expected_task["contexts"]
     assert task.tags == expected_task["tags"]
 
+
 def test_task_validation():
+    """Test task validation."""
     with pytest.raises(ValueError):
         Task(priority=26)
     with pytest.raises(ValueError):
         Task(priority=-1)
 
-@pytest.mark.parametrize(
-    "task_string, expected_priority, expected_completed, expected_description",
-    [
-        ("(A) Priority task", 0, False, "Priority task"),
-        ("x Completed task", None, True, "Completed task"),
-        ("2023-01-01 Task with date", None, False, "Task with date"),
-        ("+project @context Task with project and context", None, False, "Task with project and context"),
-        ("Task with due:2023-12-31 tag", None, False, "Task with tag"),
-    ]
-)
-def test_task_from_string(task_string, expected_priority, expected_completed, expected_description):
-    task = Task().from_string(task_string)
-    assert task.priority == expected_priority
-    assert task.completed == expected_completed
-    assert task.description == expected_description
-
 def test_task_is_overdue():
+    """Test task overdue functionality."""
     overdue_task = Task(due_date=date(2022, 1, 1))
     assert overdue_task.is_overdue(virtual_now=date(2023, 1, 1))
 
     future_task = Task(due_date=date(2024, 1, 1))
     assert not future_task.is_overdue(virtual_now=date(2023, 1, 1))
 
+
 def test_task_merge():
+    """Test task merge functionality."""
     task1 = Task(priority=1, description="Task 1", contexts=["work"])
     task2 = Task(priority=2, description="Task 2", contexts=["home"])
 
@@ -156,6 +147,7 @@ def test_task_merge():
     assert set(task1.contexts) == {"work", "home"}
     assert conflict["priority"]
     assert conflict["description"]
+
 
 if __name__ == "__main__":
     pytest.main()
