@@ -66,6 +66,12 @@ class Task:
                 "Priority must be a number between 0 and 25 (inclusive)."
             )
 
+    def _get_alphabettical_priority(self) -> str:
+        """
+        Returns the alphabetical priority of the task.
+        """
+        return chr(ord("a") + self.priority) if self.priority is not None else ""
+
     def __hash__(self):
         return hash((
             self.priority,
