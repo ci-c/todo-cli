@@ -308,7 +308,13 @@ class Task:
                             else dtparser.parse(value).date()
                         )
                 else:
-                    self.tags[key] = value
+                    if key in self.tags.keys():
+                        if isinstance(self.tags[key], list):
+                            self.tags[key].append(value)
+                        else:
+                            self.tags[key] = [self.tags[key], value]
+                    else:
+                        self.tags[key] = value
             else:
                 self.description += f'{word} '
 
